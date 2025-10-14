@@ -28,6 +28,7 @@ type InputFieldProps = {
   errorClassName?: string;
   icon?: React.ReactNode;
   iconOnClick?: () => void;
+  autoFocus?: boolean;
 };
 
 const InputField = ({
@@ -47,6 +48,7 @@ const InputField = ({
   errorClassName,
   icon,
   iconOnClick,
+  autoFocus,
 }: InputFieldProps) => {
   const { getFieldState, formState } = useFormContext();
   const fieldState = getFieldState(name, formState);
@@ -87,6 +89,7 @@ const InputField = ({
                 tabIndex={readOnly ? -1 : 0}
                 maxLength={maxLength}
                 placeholder={placeholder}
+                autoFocus={autoFocus}
                 className={`${
                   fieldState.invalid
                     ? "border border-destructive text-destructive placeholder:text-destructive focus-visible:ring-destructive"
