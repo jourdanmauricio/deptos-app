@@ -40,5 +40,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Notas
 notas.md
+
+# Configuracion de Prisma
 /lib/generated/prisma
+
+# Base de datos de Prisma
+prisma/deptos-app.db
