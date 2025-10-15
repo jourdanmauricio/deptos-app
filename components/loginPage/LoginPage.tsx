@@ -1,29 +1,43 @@
 "use client";
 
 import { z } from "zod";
+import { useState } from "react";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { Eye, EyeOff, Mail } from "lucide-react";
 import { FieldErrors, useForm } from "react-hook-form";
 
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { toast } from "sonner";
 import { Form } from "@/components/ui/form";
-import { InputField } from "@/components/ui/custom/input-field";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { SubmitButon } from "@/components/ui/custom/submit-buton";
 import { loginFormSchema } from "@/shared/schemas";
-import { Eye, EyeClosed, EyeOff, Lock, Mail } from "lucide-react";
-import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { InputField } from "@/components/ui/custom/input-field";
+import { SubmitButon } from "@/components/ui/custom/submit-buton";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
-
+  const router = useRouter();
   const form = useForm<z.infer<typeof loginFormSchema>>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
-      email: "deptosapp@gmail.com",
-      password: "deptosapp",
+      email: "detosapp@gmail.com",
+      password: "detosapp",
     },
   });
-  const onSubmit = (values: z.infer<typeof loginFormSchema>) => {
-    console.log(values);
+  const onSubmit = async (values: z.infer<typeof loginFormSchema>) => {
+    const res = await signIn("credentials", {
+      email: values.email,
+      password: values.password,
+      redirect: false,
+    });
+
+    if (!res?.ok) {
+      toast.error("Credenciales incorrectas");
+    }
+
+    toast.success("Bienvenido!!!");
+    router.push("/dashboard");
   };
   const handleSubmitError = (
     errors: FieldErrors<z.infer<typeof loginFormSchema>>

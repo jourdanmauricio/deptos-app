@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { ActiveThemeProvider } from "@/components/active-theme";
+import { AuthProvider } from "@/components/providers/session-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "Deptos App",
@@ -40,7 +42,10 @@ export default async function RootLayout({
           enableColorScheme
         >
           <ActiveThemeProvider initialTheme={activeThemeValue}>
-            {children}
+            <AuthProvider>
+              {children}
+              <Toaster />
+            </AuthProvider>
           </ActiveThemeProvider>
         </ThemeProvider>
       </body>

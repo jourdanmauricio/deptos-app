@@ -1,5 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import bcrypt from "bcryptjs";
+import prisma from "@/lib/prisma";
 
 const handler = NextAuth({
   providers: [
@@ -10,19 +12,33 @@ const handler = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials, req) {
-        const res = await fetch("/your/endpoint", {
-          method: "POST",
-          body: JSON.stringify(credentials),
-          headers: { "Content-Type": "application/json" },
-        });
-        const user = await res.json();
+        const { email, password } = credentials || {};
 
-        // If no error and we have user data, return it
-        if (res.ok && user) {
-          return user;
+        if (!email || !password) {
+          throw new Error("Email y contraseña son requeridos");
         }
-        // Return null if user data could not be retrieved
-        return null;
+
+        const userDB = await prisma.user.findUnique({
+          where: {
+            email,
+          },
+        });
+
+        if (!userDB) {
+          throw new Error("Credenciales incorrectas");
+        }
+
+        const passwordMatch = await bcrypt.compare(password, userDB.password);
+
+        if (!passwordMatch) {
+          throw new Error("Credenciales incorrectas");
+        }
+
+        return {
+          id: userDB.id,
+          name: userDB.name,
+          email: userDB.email,
+        };
       },
     }),
   ],
