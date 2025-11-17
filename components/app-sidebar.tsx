@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { useSession } from "next-auth/react";
-import { IconInnerShadowTop } from "@tabler/icons-react";
+import * as React from 'react';
+import { useSession } from 'next-auth/react';
+import { IconInnerShadowTop } from '@tabler/icons-react';
 
 import {
   Sidebar,
@@ -12,17 +12,16 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import { menuItems } from "@/shared/constanst";
-import { NavUser } from "@/components/nav-user";
-import { NavMain } from "@/components/nav-main";
-import { NavDocuments } from "@/components/nav-documents";
-import { NavSecondary } from "@/components/nav-secondary";
+} from '@/components/ui/sidebar';
+import { menuItems } from '@/shared/constanst';
+import { NavUser } from '@/components/nav-user';
+import { NavMain } from '@/components/nav-main';
+import { NavDocuments } from '@/components/nav-documents';
+import { NavSecondary } from '@/components/nav-secondary';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { data: session } = useSession();
-
-  if (!session) return null;
+  const { data: session, status } = useSession();
 
   const user = session?.user as {
     name: string;
@@ -31,19 +30,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   };
 
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar collapsible='icon' {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
-            >
-              <a href="#">
-                <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">
-                  Deptos Dashboard
-                </span>
+            <SidebarMenuButton asChild className='data-[slot=sidebar-menu-button]:!p-1.5'>
+              <a href='#'>
+                <IconInnerShadowTop className='!size-5' />
+                <span className='text-base font-semibold'>Deptos App</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -52,10 +46,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <NavMain items={menuItems.navMain} />
         <NavDocuments items={menuItems.documents} />
-        <NavSecondary items={menuItems.navSecondary} className="mt-auto" />
+        <NavSecondary items={menuItems.navSecondary} className='mt-auto' />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={user} />
+        {status === 'loading' ? (
+          <div className='flex items-center justify-center'>
+            <Skeleton className='h-6 w-full' />
+          </div>
+        ) : session ? (
+          <NavUser user={user} />
+        ) : null}
       </SidebarFooter>
     </Sidebar>
   );

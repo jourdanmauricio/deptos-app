@@ -1,14 +1,14 @@
-import Link from "next/link";
+import Link from 'next/link';
 
-import { Layout } from "lucide-react";
+import { Layout } from 'lucide-react';
 
-import { Button } from "@/components/ui/button";
-import { LoginPage } from "@/components/loginPage/LoginPage";
+import { Button } from '@/components/ui/button';
+import { LoginPage } from '@/components/loginPage/LoginPage';
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start w-full max-w-4xl">
+    <div className='grid min-h-screen grid-rows-[20px_1fr_20px] items-center justify-items-center gap-16 p-8 pb-20 font-[family-name:var(--font-geist-sans)] sm:p-20'>
+      <main className='row-start-2 flex w-full max-w-4xl flex-col items-center gap-[32px] sm:items-start'>
         <LoginPage />
       </main>
     </div>

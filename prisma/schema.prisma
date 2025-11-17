@@ -17,11 +17,213 @@ enum UserRole {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  name      String
-  role      UserRole @default(ADMIN)
+  id          String       @id @default(uuid())
+  email       String       @unique
+  password    String
+  name        String
+  role        UserRole     @default(ADMIN)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  userDetails UserDetails?
+}
+
+model UserDetails {
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id])
+  phone             String
+  address           String
+  cbu               String?
+  alias             String?
+  bank              String?
+  bankAccountNumber String?
+  avatar            String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Property {
+  id            String         @id @default(uuid())
+  status        PropertyStatus @default(ACTIVE)
+  parcelId      String
+  nisElektrik   String
+  gas           String
+  abl           String
+  absa          String
+  name          String
+  address       String
+  bedrooms      Int
+  bathrooms     Int
+  hasPool       Boolean
+  hasGarage     Boolean
+  hasGarden     Boolean
+  hasKitchen    Boolean
+  hasExpenses   Boolean
+  squareMeters  Int
+  owner         String
+  refaccionYear Int
+  description   String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  // Relación inversa con Rental
+  rentals Rental[] @relation("Property")
+}
+
+enum PropertyStatus {
+  ACTIVE
+  INACTIVE
+  RENTED
+}
+
+enum PartyType {
+  TENANT
+  GUARANTOR
+  OWNER
+}
+
+model Party {
+  id               String    @id @default(uuid())
+  name             String
+  type             PartyType
+  dni              String
+  phone            String
+  email            String
+  description      String
+  address          String
+  job              String
+  documentFront    String?
+  documentBack     String?
+  bank             String?
+  accountNumber    String?
+  cbu              String?
+  alias            String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  // Relaciones inversas con Rental
+  tenantRentals    Rental[]  @relation("Tenant")
+  guarantorRentals Rental[]  @relation("Guarantor")
+  ownerRentals     Rental[]  @relation("Owner")
+}
+
+enum RentalStatus {
+  ACTIVE
+  INACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  CHECK
+  TRANSFER
+  CREDIT_CARD
+  DEBIT_CARD
+  ONLINE
+  OTHER
+}
+
+enum IndexationType {
+  IPC
+  ICL
+  FIXED
+}
+
+enum PaymentStatus {
+  PENDING // Pendiente de pago
+  PAID // Pagado
+  LATE // Pagado con atraso
+  CANCELLED // Cancelado
+}
+
+enum PaymentConcept {
+  RENT // Alquiler
+  EXPENSES // Expensas
+  EXTRA_EXPENSES // Expensas extraordinarias
+  DEPOSIT_GUARANTOR // Depósito de garantía
+  OTHER // Otro concepto
+}
+
+model Payment {
+  id       String @id @default(uuid())
+  rentalId String
+  rental   Rental @relation(fields: [rentalId], references: [id], onDelete: Cascade)
+
+  // Información del pago
+  amount   Float // Monto del pago
+  penalty  Float? // Multa/penalización
+  total    Float? // Total del pago
+  concept  PaymentConcept @default(RENT)
+  paidDate DateTime? // Fecha real de pago
+  status   PaymentStatus  @default(PENDING)
+
+  // Información adicional
+  paymentMethod   PaymentMethod @default(CASH)
+  referenceNumber String? // Número de comprobante/transferencia
+  receiptUrl      String? // URL del comprobante escaneado
+  notes           String? // Notas adicionales
+
+  // Período que cubre
+  periodStart DateTime? // Inicio del período (ej: 01/03/2024)
+  periodEnd   DateTime? // Fin del período (ej: 31/03/2024)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([rentalId])
+  @@index([status])
+}
+
+model Rental {
+  id                    String         @id @default(uuid())
+  propertyId            String
+  property              Property       @relation("Property", fields: [propertyId], references: [id])
+  tenantId              String
+  tenant                Party          @relation("Tenant", fields: [tenantId], references: [id])
+  guarantors            Party[]        @relation("Guarantor")
+  ownerId               String
+  owner                 Party          @relation("Owner", fields: [ownerId], references: [id])
+  contractDurationYears Int            @default(2)
+  startDate             DateTime
+  endDate               DateTime
+  signedDate            DateTime? // Fecha de firma del contrato
+  terminationDate       DateTime? // Fecha real de terminación (si se cancela antes de endDate)
+  initialRent           Float
+  rentUpdateMonths      Int?           @default(3)
+  penaltyRate           Float? // Tasa de penalización (%)
+  currency              String         @default("ARS") // Moneda (ARS, USD, EUR)
+  indexationType        IndexationType @default(IPC)
+  status                RentalStatus   @default(ACTIVE)
+  deposit               Float
+  paymentMethod         PaymentMethod  @default(CASH)
+  billing               Boolean        @default(false)
+  observation           String?
+  contractUrl           String?
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+
+  // Relación con pagos
+  payments       Payment[]
+  // Relación con plantilla de word
+  wordTemplateId String?
+  wordTemplate   WordTemplate? @relation(fields: [wordTemplateId], references: [id])
+}
+
+enum WordTemplateType {
+  RENTAL_CONTRACT_HOME
+  RENTAL_CONTRACT_COMMERCIAL
+  RENTAL_RECEIPT
+  CONTRACT_CANCELLATION
+}
+
+model WordTemplate {
+  id          String           @id @default(uuid())
+  name        String
+  type        WordTemplateType
+  description String
+  content     String
+  variables   Json
+  rentals     Rental[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 }
