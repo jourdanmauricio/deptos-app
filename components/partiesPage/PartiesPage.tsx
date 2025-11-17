@@ -62,6 +62,7 @@ const PartiesPage = () => {
     const search = filterValue.search.toLowerCase();
     return (
       party.name.toLowerCase().includes(search) ||
+      party.lastName.toLowerCase().includes(search) ||
       party.email.toLowerCase().includes(search) ||
       party.phone.toLowerCase().includes(search) ||
       party.dni.toLowerCase().includes(search) ||
@@ -106,7 +107,7 @@ const PartiesPage = () => {
 
     // Mapear los datos de Property
     const exportData = dataToExport.map((party) => [
-      party.name,
+      `${party.lastName}, ${party.name}`,
       party.address,
       party.type,
       party.dni,

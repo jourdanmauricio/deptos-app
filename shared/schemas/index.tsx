@@ -44,8 +44,10 @@ export const userFormSchema = z.object({
 
 export const partyFormSchema = z.object({
   name: z.string().min(1, 'Requerido'),
+  lastName: z.string().min(1, 'Requerido'),
   type: z.enum(['TENANT', 'GUARANTOR', 'OWNER']),
   dni: z.string().min(1, 'Requerido'),
+  cuil: z.string().min(1, 'Requerido'),
   phone: z.string().min(1, 'Requerido'),
   email: z
     .union([z.string().email({ message: 'Email inválido' }), z.literal('')])
@@ -75,6 +77,7 @@ export const rentalFormSchema = z.object({
   rentUpdateMonths: z.string().min(1, 'Requerido'),
   contractDurationYears: z.string().min(1, 'Requerido'),
   penaltyRate: z.string().min(1, 'Requerido'),
+  rescissionRate: z.string().min(1, 'Requerido'),
   currency: z.string(),
   indexationType: z.enum(['IPC', 'ICL', 'FIXED']),
   status: z.enum(['ACTIVE', 'INACTIVE', 'EXPIRED', 'CANCELLED']),
@@ -91,6 +94,7 @@ export const rentalFormSchema = z.object({
   billing: z.boolean(),
   contractUrl: z.string().optional(),
   wordTemplateId: z.string().optional(),
+  content: z.string().optional(),
   observation: z.string().optional(),
 });
 

@@ -8,14 +8,9 @@ import { rentalStatus as rentalStatusConstants } from '@/shared/constanst';
 type DataTableColumnsProps = {
   onEdit: (rental: Rental) => void;
   onDelete: (rental: Rental) => void;
-  onGenerate: (rental: Rental) => void;
 };
 
-export const getColumns = ({
-  onEdit,
-  onDelete,
-  onGenerate,
-}: DataTableColumnsProps): ColumnDef<Rental>[] => [
+export const getColumns = ({ onEdit, onDelete }: DataTableColumnsProps): ColumnDef<Rental>[] => [
   {
     id: 'property',
     header: 'PROPIEDAD',
@@ -85,14 +80,6 @@ export const getColumns = ({
       const rental = row.original;
       return (
         <div className='flex items-center gap-2'>
-          <Button
-            variant='ghost'
-            size='sm'
-            onClick={() => onGenerate(rental)}
-            className='h-8 w-8 p-0 hover:bg-blue-50'
-          >
-            <FileTextIcon className='h-4 w-4 text-green-600' />
-          </Button>
           <Button
             variant='ghost'
             size='sm'

@@ -179,7 +179,7 @@ const Modal = ({ open, closeModal, template }: ModalProps) => {
                       form={form}
                       className='w-3/4'
                       rows={20}
-                      inputClassname='overflow-y-auto min-h-[300px]'
+                      inputClassname='overflow-y-auto h-[400px]'
                       cursorPosition={textareaCursorPosition}
                       onBlur={(v) => (cursorPositionRef.current = v.target.selectionStart)}
                     />

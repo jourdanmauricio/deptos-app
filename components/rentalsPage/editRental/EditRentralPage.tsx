@@ -26,6 +26,7 @@ import { SubmitButton } from '@/components/ui/custom/submit-button';
 import ImageUpload from '@/components/ui/custom/image-upload/ImageUpload';
 import { TypeWordTemplatesDropdown } from '@/components/ui/dropdowns/TypeWordTemplatesDropdown';
 import { WordTemplatesDropdown } from '@/components/ui/dropdowns/WordTemplatesDropdown';
+import { ContractModalGenerate } from '../ContractModalGenerate';
 
 type EditRentalPageProps = {
   rentalId: string;
@@ -54,7 +55,8 @@ const defaultValues = {
   terminationDate: undefined,
   initialRent: '0',
   rentUpdateMonths: '3',
-  penaltyRate: '1',
+  penaltyRate: '0,5',
+  rescissionRate: '2,5',
   currency: 'ARS',
   indexationType: 'IPC' as IndexationType,
   status: 'ACTIVE' as RentalStatus,
@@ -71,6 +73,7 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [_, startTransition] = useTransition();
   const { data: rental, isLoading, isFetching, error } = useRental(rentalId);
+  const [contractModalIsOpen, setContractModalIsOpen] = useState(false);
 
   const mode = rentalId === 'new' ? 'NEW' : 'EDIT';
 
@@ -105,6 +108,7 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
           initialRent: rental.initialRent?.toString() || '',
           rentUpdateMonths: rental.rentUpdateMonths?.toString() || '',
           penaltyRate: rental.penaltyRate?.toString() || '',
+          rescissionRate: rental.rescissionRate?.toString() || '',
           indexationType: rental.indexationType || 'IPC',
           status: rental.status || 'ACTIVE',
           deposit: rental.deposit?.toString() || '0',
@@ -143,6 +147,7 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
       initialRent: parseFloat(values.initialRent),
       rentUpdateMonths: Number(values.rentUpdateMonths),
       penaltyRate: parseFloat(values.penaltyRate),
+      rescissionRate: parseFloat(values.rescissionRate),
       deposit: parseFloat(values.deposit),
       indexationType: values.indexationType as IndexationType,
       signedDate: values.signedDate ?? '',
@@ -196,7 +201,7 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
       ) : (
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit, onError)}>
-            <div className='mt-8 grid grid-cols-2 gap-x-12 gap-y-8'>
+            <div className='mt-8 grid grid-cols-2 gap-x-12 gap-y-8 px-20'>
               <PropertiesDropdown
                 label='Propiedad'
                 name='propertyId'
@@ -283,7 +288,10 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
                 form={form}
                 className='w-full'
               />
-              <div className='h-[64px]'></div>
+
+              <Button type='button' className='mb-1' onClick={() => setContractModalIsOpen(true)}>
+                Generar contrato
+              </Button>
 
               <InputNumberField
                 label='Duración del contrato (años)'
@@ -331,13 +339,22 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
                 regExp={/^[1-6]$/}
               />
 
-              <InputNumberField
-                label='Tasa de penalización (%)'
-                name='penaltyRate'
-                form={form}
-                className='w-full'
-                regExp={/^(0|(0,\d{0,2})|([1-9]\d{0,2})(,\d{0,2})?)?$/}
-              />
+              <div className='flex items-end justify-center gap-4'>
+                <InputNumberField
+                  label='Tasa de penalización (%)'
+                  name='penaltyRate'
+                  form={form}
+                  className='w-full'
+                  regExp={/^(0|(0,\d{0,2})|([1-9]\d{0,2})(,\d{0,2})?)?$/}
+                />
+                <InputNumberField
+                  label='Tasa de rescisión (%)'
+                  name='rescissionRate'
+                  form={form}
+                  className='w-full'
+                  regExp={/^(0|(0,\d{0,2})|([1-9]\d{0,2})(,\d{0,2})?)?$/}
+                />
+              </div>
 
               <TypeIndexationDropdown
                 label='Tipo de indexación'
@@ -422,6 +439,14 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
       )}
       {modalIsOpen && (
         <Modal open={modalIsOpen} closeModal={() => setModalIsOpen(false)} party={null} />
+      )}
+
+      {contractModalIsOpen && (
+        <ContractModalGenerate
+          open={contractModalIsOpen}
+          onClose={() => setContractModalIsOpen(false)}
+          form={form}
+        />
       )}
     </div>
   );

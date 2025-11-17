@@ -4,6 +4,7 @@ import {
   createWordTemplate,
   updateWordTemplate,
   deleteWordTemplate,
+  getWordTemplateById,
 } from '@/lib/actions/word-templates';
 import { toast } from 'sonner';
 
@@ -14,6 +15,13 @@ export function useWordTemplates() {
   });
 }
 
+export function useWordTemplate(wordTemplateId: string) {
+  return useQuery({
+    queryKey: ['wordTemplate', wordTemplateId],
+    queryFn: () => getWordTemplateById(wordTemplateId),
+    enabled: !!wordTemplateId,
+  });
+}
 export function useCreateWordTemplate() {
   const queryClient = useQueryClient();
 

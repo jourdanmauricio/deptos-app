@@ -85,8 +85,10 @@ enum PartyType {
 model Party {
   id               String    @id @default(uuid())
   name             String
+  lastName         String
   type             PartyType
   dni              String
+  cuil             String
   phone            String
   email            String
   description      String
@@ -191,6 +193,7 @@ model Rental {
   initialRent           Float
   rentUpdateMonths      Int?           @default(3)
   penaltyRate           Float? // Tasa de penalización (%)
+  rescissionRate        Float? // Tasa de rescisión (%)
   currency              String         @default("ARS") // Moneda (ARS, USD, EUR)
   indexationType        IndexationType @default(IPC)
   status                RentalStatus   @default(ACTIVE)

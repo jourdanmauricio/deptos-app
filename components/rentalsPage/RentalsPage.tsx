@@ -39,16 +39,11 @@ const RentalsPage = () => {
     setDeleteModalIsOpen(true);
   };
 
-  const onGenerate = (rental: Rental) => {
-    console.log('onGenerate', rental);
-  };
-
   const columns = useMemo(
     () =>
       getColumns({
         onEdit,
         onDelete,
-        onGenerate,
       }),
     [onEdit, onDelete]
   );

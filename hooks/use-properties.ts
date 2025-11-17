@@ -4,6 +4,7 @@ import {
   createProperty,
   updateProperty,
   deleteProperty,
+  getPropertyById,
 } from '@/lib/actions/properties';
 import { toast } from 'sonner';
 
@@ -11,6 +12,13 @@ export function useProperties() {
   return useQuery({
     queryKey: ['properties'],
     queryFn: getProperties,
+  });
+}
+
+export function usePropertyById(id: string) {
+  return useQuery({
+    queryKey: ['properties', id],
+    queryFn: () => getPropertyById(id),
   });
 }
 

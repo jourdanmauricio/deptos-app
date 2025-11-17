@@ -1,11 +1,24 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getParties, createParty, updateParty, deleteParty } from '@/lib/actions/parties';
+import {
+  getParties,
+  createParty,
+  updateParty,
+  deleteParty,
+  getPartyById,
+} from '@/lib/actions/parties';
 import { toast } from 'sonner';
 
 export function useParties() {
   return useQuery({
     queryKey: ['parties'],
     queryFn: getParties,
+  });
+}
+
+export function usePartyById(id: string) {
+  return useQuery({
+    queryKey: ['parties', id],
+    queryFn: () => getPartyById(id),
   });
 }
 

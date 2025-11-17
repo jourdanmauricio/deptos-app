@@ -5,6 +5,7 @@ import Dropdown from '@/components/ui/custom/dropdown';
 import DropdownLoadSkeleton from '@/components/ui/skeletons/dropdownLoadSkeleton';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import type { UserRole } from '@/lib/generated/prisma';
+import { indexationTypes } from '@/shared/constanst';
 
 type DropdownProps = {
   name: string;
@@ -28,12 +29,6 @@ const TypeIndexationDropdown = ({
   placeholder,
 }: DropdownProps) => {
   const labelName = label ?? 'Rol' + (required ? '*' : '');
-
-  const indexationTypes = [
-    { id: 'IPC', description: 'IPC' },
-    { id: 'ICL', description: 'ICL' },
-    { id: 'FIXED', description: 'FIJO' },
-  ];
 
   return (
     <Suspense fallback={<DropdownLoadSkeleton label={labelName} />}>

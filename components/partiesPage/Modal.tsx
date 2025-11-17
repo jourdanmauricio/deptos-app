@@ -30,9 +30,11 @@ interface ModalProps {
 
 const defaultValues = {
   name: '',
+  lastName: '',
   address: '',
   type: 'TENANT' as Party['type'],
   dni: '',
+  cuil: '',
   phone: '',
   email: '',
   description: '',
@@ -60,6 +62,8 @@ const Modal = ({ open, closeModal, party }: ModalProps) => {
     if (party) {
       form.reset({
         ...party,
+        cuil: party.cuil ?? '',
+        lastName: party.lastName ?? '',
         documentFront: party.documentFront ?? '',
         documentBack: party.documentBack ?? '',
         bank: party.bank ?? '',
@@ -147,6 +151,7 @@ const Modal = ({ open, closeModal, party }: ModalProps) => {
         accountNumber: values.accountNumber || '',
         cbu: values.cbu || '',
         alias: values.alias || '',
+        cuil: values.cuil || '',
       };
 
       if (mode === 'CREATE') {
@@ -197,7 +202,13 @@ const Modal = ({ open, closeModal, party }: ModalProps) => {
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit, onError)}>
                 <div className='mt-4 grid grid-cols-2 gap-x-12 gap-y-8'>
-                  <InputField label='Nombre' name='name' placeholder='Nombre' form={form} />
+                  <InputField label='Nombres' name='name' placeholder='Nombres' form={form} />
+                  <InputField
+                    label='Apellidos'
+                    name='lastName'
+                    placeholder='Apellidos'
+                    form={form}
+                  />
                   <InputField
                     label='Dirección'
                     name='address'
@@ -205,7 +216,10 @@ const Modal = ({ open, closeModal, party }: ModalProps) => {
                     form={form}
                   />
 
-                  <InputField label='DNI' name='dni' placeholder='DNI' form={form} />
+                  <div className='flex gap-8'>
+                    <InputField label='DNI' name='dni' placeholder='DNI' form={form} />
+                    <InputField label='CUIL' name='cuil' placeholder='CUIL' form={form} />
+                  </div>
 
                   <InputField label='Teléfono' name='phone' placeholder='Teléfono' form={form} />
 
@@ -214,7 +228,7 @@ const Modal = ({ open, closeModal, party }: ModalProps) => {
                   <InputField label='Trabajo' name='job' placeholder='Trabajo' form={form} />
 
                   <TypePartiesDropdown label='Tipo de tercero' name='type' form={form} />
-                  <div></div>
+
                   {form.watch('type') !== 'OWNER' && (
                     <>
                       <ImageUpload label='Documento frente' name='documentFront' form={form} />

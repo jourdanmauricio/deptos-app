@@ -11,28 +11,6 @@ type DataTableColumnsProps = {
 };
 
 export const getColumns = ({ onEdit, onDelete }: DataTableColumnsProps): ColumnDef<Party>[] => [
-  // {
-  //   accessorKey: "documentFront",
-  //   header: "DNI",
-  //   size: 100,
-  //   cell: ({ row }) => {
-  //     const property = row.original;
-  //     return (
-  //       <div className="flex items-center justify-center w-12 h-12">
-  //         <Image
-  //           src={property.documentFront ?? "/images/sin-imagen.png"}
-  //           alt="DNI"
-  //           width={56}
-  //           height={56}
-  //           className={`object-cover rounded w-full h-full ${
-  //             property.documentFront ? "bg-transparent" : "bg-gray-500"
-  //           }`}
-  //         />
-  //       </div>
-  //     );
-  //   },
-  //   enableSorting: false,
-  // },
   {
     accessorKey: 'name',
     header: 'NOMBRE',
@@ -41,7 +19,7 @@ export const getColumns = ({ onEdit, onDelete }: DataTableColumnsProps): ColumnD
     maxSize: 350,
     cell: ({ row }) => {
       const property = row.original;
-      return <TruncatedCell value={property.name} linesMax={2} />;
+      return <TruncatedCell value={`${property.lastName}, ${property.name}`} linesMax={2} />;
     },
   },
   {
