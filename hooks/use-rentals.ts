@@ -40,20 +40,22 @@ export function useCreateRental(onSuccessCallback?: () => void) {
   });
 }
 
-export function useUpdateRental(onSuccessCallback?: () => void) {
+export function useUpdateRental() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) => updateRental(id, data),
     onSuccess: async (data, variables) => {
-      await queryClient.invalidateQueries({ queryKey: ['rentals'] });
-      await queryClient.invalidateQueries({
-        queryKey: ['rental', variables.id],
-      });
-      toast.success('Alquiler actualizado correctamente');
-      // Ejecutar callback si existe (por ejemplo, para navegación)
-      if (onSuccessCallback) {
-        onSuccessCallback();
+      try {
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ['rentals'] }),
+          queryClient.invalidateQueries({
+            queryKey: ['rental', variables.id],
+          }),
+        ]);
+      } catch (error) {
+        console.error('Error invalidating queries:', error);
       }
+      toast.success('Alquiler actualizado correctamente');
     },
     onError: (error: Error) => {
       toast.error(error.message);

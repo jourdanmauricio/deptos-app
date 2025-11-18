@@ -49,7 +49,7 @@ export default function BooleanCheckbox({
             </FormControl>
             <div className={`space-y-1 leading-none ${labelClassName}`}>
               <FormLabel
-                className={`text-base ${labelClassName} ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                className={`text-base font-normal ${labelClassName} ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
               >
                 {label}
               </FormLabel>

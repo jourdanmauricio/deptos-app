@@ -3,6 +3,9 @@
 import { FilterFn, Row, SortingState } from '@tanstack/react-table';
 import { useMemo, useState } from 'react';
 import { PlusIcon } from 'lucide-react';
+import HTMLtoDOCX from 'html-to-docx';
+import { saveAs } from 'file-saver';
+import * as htmlDocx from 'html-docx-js';
 
 import { Rental } from '@/shared/types';
 import { useRouter } from 'next/navigation';
@@ -12,6 +15,7 @@ import { getColumns } from '@/components/rentalsPage/table/columns';
 import CustomAlertDialog from '@/components/ui/custom/custom-alert-dialog';
 import { InputFieldSeach } from '@/components/ui/custom/input-field-seach';
 import { useDeleteRental, useRentals } from '@/hooks/use-rentals';
+import { toast } from 'sonner';
 
 const RentalsPage = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -39,11 +43,50 @@ const RentalsPage = () => {
     setDeleteModalIsOpen(true);
   };
 
+  const onDownloadContract = async (rental: Rental) => {
+    const content = rental.contractContent || '';
+    const fileName = `contrato_${rental.tenantId}_${Date.now()}.docx`;
+
+    try {
+      const response = await fetch('/api/generate-docx', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content,
+          fileName,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate document');
+      }
+
+      toast.success('Iniciando descarga del contrato...');
+      // Obtener el blob y descargarlo
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading contract:', error);
+      // Aquí podrías mostrar un toast de error
+      toast.error('Error al descargar el contrato');
+    }
+  };
+
   const columns = useMemo(
     () =>
       getColumns({
         onEdit,
         onDelete,
+        onDownloadContract,
       }),
     [onEdit, onDelete]
   );

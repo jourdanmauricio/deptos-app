@@ -94,8 +94,9 @@ export const rentalFormSchema = z.object({
   billing: z.boolean(),
   contractUrl: z.string().optional(),
   wordTemplateId: z.string().optional(),
-  content: z.string().optional(),
+  // content: z.string().optional(),
   observation: z.string().optional(),
+  contractContent: z.string().optional(),
 });
 
 export const wordTemplateFormSchema = z.object({

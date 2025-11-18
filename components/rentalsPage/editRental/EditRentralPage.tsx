@@ -66,6 +66,7 @@ const defaultValues = {
   contractUrl: '',
   observation: '',
   wordTemplateId: '',
+  contractContent: '',
 };
 // terminationDate
 
@@ -79,13 +80,8 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
 
   const router = useRouter();
 
-  // Callback para redirigir después de crear/actualizar
-  const handleSuccess = () => {
-    router.push('/dashboard/rentals');
-  };
-
-  const createRentalMutation = useCreateRental(handleSuccess);
-  const updateRentalMutation = useUpdateRental(handleSuccess);
+  const createRentalMutation = useCreateRental();
+  const updateRentalMutation = useUpdateRental();
 
   const form = useForm<z.infer<typeof rentalFormSchema>>({
     resolver: zodResolver(rentalFormSchema),
@@ -118,12 +114,11 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
           observation: rental.observation || '',
           currency: rental.currency || 'ARS',
           wordTemplateId: rental.wordTemplateId || '',
+          contractContent: rental.contractContent || '',
         });
       });
     }
   }, [rental, isLoading, isFetching, form]);
-
-  // console.log("rental", rental);
 
   const handleAddGuarantor = () => {
     // agregar un elemento al array de garantes
@@ -140,7 +135,6 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
   };
 
   const onSubmit = async (values: z.infer<typeof rentalFormSchema>) => {
-    console.log('values onSubmit', values);
     const valuesToSubmit = {
       ...values,
       contractDurationYears: Number(values.contractDurationYears),
@@ -161,33 +155,29 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
           .map((id) => ({ id })),
       },
       wordTemplateId: values.wordTemplateId || null,
+      contractContent: values.contractContent || '',
     };
 
-    // La navegación se maneja automáticamente en el callback onSuccess del hook
-    if (mode === 'NEW') {
-      console.log('valuesToSubmit', valuesToSubmit);
-      await createRentalMutation.mutateAsync(valuesToSubmit);
-    } else {
-      console.log('valuesToSubmit', valuesToSubmit);
-      await updateRentalMutation.mutateAsync({
-        id: rental?.id!,
-        data: valuesToSubmit,
-      });
+    try {
+      if (mode === 'NEW') {
+        createRentalMutation.mutate(valuesToSubmit);
+        router.push('/dashboard/rentals');
+      } else {
+        updateRentalMutation.mutate({
+          id: rental?.id!,
+          data: valuesToSubmit,
+        });
+        router.push('/dashboard/rentals');
+      }
+    } catch (error) {
+      // El error ya se maneja en el hook con toast
+      console.error('Error en submit:', error);
     }
   };
 
   const onError = (errors: FieldErrors<z.infer<typeof rentalFormSchema>>) => {
     console.log('errors', errors);
   };
-
-  // Observa todos los cambios del formulario en tiempo real
-  // const formValues = form.watch();
-
-  // useEffect(() => {
-  //   console.log("CustomDatePicker - form values changed:", formValues);
-  // }, [formValues]);
-
-  //if (isLoading || isFetching) return;
 
   return (
     <div>
@@ -201,7 +191,7 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
       ) : (
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit, onError)}>
-            <div className='mt-8 grid grid-cols-2 gap-x-12 gap-y-8 px-20'>
+            <div className='mt-8 grid grid-cols-2 gap-x-12 gap-y-8 px-10 lg:px-20'>
               <PropertiesDropdown
                 label='Propiedad'
                 name='propertyId'
@@ -282,17 +272,6 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
                 </div>
               )}
 
-              <WordTemplatesDropdown
-                label='Plantilla de Word'
-                name='wordTemplateId'
-                form={form}
-                className='w-full'
-              />
-
-              <Button type='button' className='mb-1' onClick={() => setContractModalIsOpen(true)}>
-                Generar contrato
-              </Button>
-
               <InputNumberField
                 label='Duración del contrato (años)'
                 name='contractDurationYears'
@@ -370,7 +349,6 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
                   name='deposit'
                   className='w-full'
                   label='Depósito'
-                  labelClassName='font-normal text-neutral-900'
                   placeholder='Depósito'
                   form={form}
                   regExp={/^(0|(0,\d{0,2})|([1-9]\d{0,8})(,\d{0,2})?)?$/}
@@ -390,12 +368,12 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
                   className='w-full'
                   regExp={/^(0|(0,\d{0,2})|([1-9]\d{0,8})(,\d{0,2})?)?$/}
                 />
+
                 <BooleanCheckbox
                   label='Factura?'
                   name='billing'
                   form={form}
                   className='ml-0 w-full pl-0'
-                  labelClassName='font-normal text-neutral-900'
                 />
               </div>
 
@@ -407,6 +385,21 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
                 form={form}
                 className='col-span-2 w-full'
               />
+
+              <WordTemplatesDropdown
+                label='Plantilla de Word'
+                name='wordTemplateId'
+                form={form}
+                className='w-full'
+              />
+
+              <Button
+                type='button'
+                className='mb-1 self-end'
+                onClick={() => setContractModalIsOpen(true)}
+              >
+                Editar contrato
+              </Button>
             </div>
 
             <div className='col-span-2 flex justify-end gap-8 pt-10'>
@@ -415,11 +408,7 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
                 onClick={() => router.back()}
                 variant='outline'
                 className='min-w-[150px]'
-                disabled={
-                  createRentalMutation.isPending ||
-                  updateRentalMutation.isPending ||
-                  !form.formState.isDirty
-                }
+                disabled={createRentalMutation.isPending || updateRentalMutation.isPending}
               >
                 Cancelar
               </Button>

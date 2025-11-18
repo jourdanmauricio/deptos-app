@@ -1,4 +1,8 @@
 import z from 'zod';
+import { es } from 'date-fns/locale';
+import React, { useEffect, useState } from 'react';
+import { addMonths, format } from 'date-fns';
+import { UseFormReturn, FormProvider } from 'react-hook-form';
 
 import {
   Dialog,
@@ -7,17 +11,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import React, { useEffect } from 'react';
-import { useWordTemplate } from '@/hooks/use-word-templates';
-import { UseFormReturn, FormProvider } from 'react-hook-form';
+import { usePartyById } from '@/hooks/use-parties';
 import { rentalFormSchema } from '@/shared/schemas';
-import TextareaField from '@/components/ui/custom/textarea-field';
-import { indexationTypes, rentalVariables } from '@/shared/constanst';
-import { useParties, usePartyById } from '@/hooks/use-parties';
-import { useProperties, usePropertyById } from '@/hooks/use-properties';
+import { indexationTypes } from '@/shared/constanst';
 import { numberToText } from '@/lib/utils/numberToText';
-import { addMonths, format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { usePropertyById } from '@/hooks/use-properties';
+import { useWordTemplate } from '@/hooks/use-word-templates';
+import { EditorTiptap } from '@/components/ui/custom/editor-tiptap';
+import { LoaderIcon } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface ContractModalGenerateProps {
   open: boolean;
@@ -26,106 +28,108 @@ interface ContractModalGenerateProps {
 }
 
 const ContractModalGenerate = ({ open, onClose, form }: ContractModalGenerateProps) => {
-  console.log('rental', form.getValues('wordTemplateId'));
+  const [isContentReady, setIsContentReady] = useState(false);
+
   const wordTemplateId = form.getValues('wordTemplateId');
 
-  const { data: wordTemplate } = useWordTemplate(wordTemplateId || '');
-  const { data: tenant } = usePartyById(form.getValues('tenantId'));
-  const { data: owner } = usePartyById(form.getValues('ownerId'));
-  const { data: guarantors } = usePartyById(form.getValues('guarantors')[0]);
-  const { data: guarantors2 } = usePartyById(form.getValues('guarantors')[1]);
-  const { data: property } = usePropertyById(form.getValues('propertyId'));
+  const { data: wordTemplate, isLoading: isLoadingWordTemplate } = useWordTemplate(
+    wordTemplateId || ''
+  );
+  const { data: tenant, isLoading: isLoadingTenant } = usePartyById(form.getValues('tenantId'));
+  const { data: owner, isLoading: isLoadingOwner } = usePartyById(form.getValues('ownerId'));
+  const { data: guarantors, isLoading: isLoadingGuarantors } = usePartyById(
+    form.getValues('guarantors')[0]
+  );
+  const { data: guarantors2, isLoading: isLoadingGuarantors2 } = usePartyById(
+    form.getValues('guarantors')[1]
+  );
+  const { data: property, isLoading: isLoadingProperty } = usePropertyById(
+    form.getValues('propertyId')
+  );
 
-  console.log('form values!!!!!!!', form.getValues());
+  const isLoading =
+    isLoadingWordTemplate ||
+    isLoadingTenant ||
+    isLoadingOwner ||
+    isLoadingGuarantors ||
+    isLoadingGuarantors2 ||
+    isLoadingProperty;
 
   useEffect(() => {
-    if (wordTemplate) {
-      // console.log('wordTemplate', wordTemplate.variables);
+    if (form.getValues('contractContent')) {
+      setIsContentReady(true);
+      return;
+    }
 
-      // Buscar variables en el contenido de la plantilla y reemplazar con el valor de la variable
+    if (isLoading || !wordTemplate || !tenant || !owner || !property) {
+      return;
+    }
+
+    if (wordTemplate) {
       const variables = wordTemplate.content.match(/{{.*?}}/g);
-      // console.log('variables!!!!!!!!!!!', variables);
       let variableValue = '';
+
       if (variables) {
         variables.forEach((variable) => {
           if (variable === '{{propietario_nombres}}') {
-            variableValue = owner?.name || '';
+            variableValue = `${owner?.name || ''}`;
           }
-
           if (variable === '{{propietario_apellidos}}') {
-            variableValue = owner?.lastName || '';
+            variableValue = `${owner?.lastName || ''}`;
           }
-
           if (variable === '{{propietario_dni}}') {
             variableValue = owner?.dni || '';
           }
-
           if (variable === '{{propietario_cuil}}') {
             variableValue = owner?.cuil || '';
           }
-
           if (variable === '{{propietario_domicilio}}') {
             variableValue = owner?.address || '';
           }
-
           if (variable === '{{inquilino_nombres}}') {
-            variableValue = tenant?.name || '';
+            variableValue = `${tenant?.name || ''}`;
           }
           if (variable === '{{inquilino_apellidos}}') {
-            variableValue = tenant?.lastName || '';
+            variableValue = `${tenant?.lastName || ''}`;
           }
           if (variable === '{{inquilino_dni}}') {
             variableValue = tenant?.dni || '';
           }
-
           if (variable === '{{inquilino_domicilio}}') {
             variableValue = tenant?.address || '';
           }
-
           if (variable === '{{inquilino_cuil}}') {
             variableValue = tenant?.cuil || '';
           }
-
           if (variable === '{{propiedad_domicilio}}') {
             variableValue = property?.address || '';
           }
-
           if (variable === '{{plazo_texto}}') {
-            // pasar numero a texto. Ejemplo: 24 -> "VEINTICUATRO"
             variableValue = `${numberToText(+form.getValues('contractDurationYears') * 12)}` || '';
           }
-
           if (variable === '{{plazo_numero}}') {
             variableValue = `${+form.getValues('contractDurationYears') * 12}` || '';
           }
-
           if (variable === '{{monto_texto}}') {
             variableValue = `${numberToText(+form.getValues('initialRent'))}` || '';
           }
-
           if (variable === '{{monto_numero}}') {
             variableValue = `${+form.getValues('initialRent')}` || '';
           }
-
           if (variable === '{{deposito_texto}}') {
             variableValue = `${numberToText(+form.getValues('deposit'))}` || '';
           }
-
           if (variable === '{{deposito_numero}}') {
             variableValue = `${+form.getValues('deposit')}` || '';
           }
-
           if (variable === '{{primer_ajuste}}') {
-            // fecha de inicio + rentUpdateMonths
             variableValue =
               `${format(addMonths(form.getValues('startDate'), +form.getValues('rentUpdateMonths')), "d 'de' MMMM 'de' yyyy", { locale: es })}` ||
               '';
           }
-
           if (variable === '{{indice}}') {
             variableValue = form.getValues('indexationType') || '';
           }
-
           if (variable === '{{indice_texto}}') {
             variableValue =
               indexationTypes.find(
@@ -133,21 +137,16 @@ const ContractModalGenerate = ({ open, onClose, form }: ContractModalGeneratePro
                   type.id === form.getValues('indexationType')
               )?.description || '';
           }
-
           if (variable === '{{penalidad}}') {
             variableValue = form.getValues('penaltyRate').replace('.', ',') || '';
           }
-
           if (variable === '{{penalidad_entrega_texto}}') {
             variableValue = `${numberToText(+form.getValues('rescissionRate'))}` || '';
           }
-
           if (variable === '{{penalidad_entrega_numero}}') {
             variableValue = form.getValues('rescissionRate').replace('.', ',') || '';
           }
-
           if (variable === '{{fecha_inicio}}') {
-            // pasar fecha a texto. Ejemplo: 2025-11-17 -> "17 de noviembre de 2025"
             variableValue =
               `${format(form.getValues('startDate'), "d 'de' MMMM 'de' yyyy", { locale: es })}` ||
               '';
@@ -157,63 +156,50 @@ const ContractModalGenerate = ({ open, onClose, form }: ContractModalGeneratePro
               `${format(form.getValues('endDate'), "d 'de' MMMM 'de' yyyy", { locale: es })}`.toUpperCase() ||
               '';
           }
-
           if (variable === '{{garante_nombres}}') {
-            variableValue = guarantors?.name || '';
+            variableValue = `<strong>${guarantors?.name || ''}</strong>`;
           }
-
           if (variable === '{{garante_apellidos}}') {
-            variableValue = guarantors?.lastName || '';
+            variableValue = `<strong>${guarantors?.lastName || ''}</strong>`;
           }
-
           if (variable === '{{garante_dni}}') {
             variableValue = guarantors?.dni || '';
           }
-
           if (variable === '{{garante_domicilio}}') {
             variableValue = guarantors?.address || '';
           }
-
           if (variable === '{{garante_cuil}}') {
             variableValue = guarantors?.cuil || '';
           }
-
           if (variable === '{{garante2_nombres}}') {
-            variableValue = guarantors2?.name || '';
+            variableValue = `<strong>${guarantors2?.name || ''}</strong>`;
           }
-
           if (variable === '{{garante2_apellidos}}') {
-            variableValue = guarantors2?.lastName || '';
+            variableValue = `<strong>${guarantors2?.lastName || ''}</strong>`;
           }
-
           if (variable === '{{garante2_dni}}') {
             variableValue = guarantors2?.dni || '';
           }
-
           if (variable === '{{garante2_domicilio}}') {
             variableValue = guarantors2?.address || '';
           }
-
           if (variable === '{{fecha_firma}}') {
-            // pasar fecha a texto. Ejemplo: 2025-11-17 -> "17 de noviembre de 2025"
             variableValue =
               `${format(form.getValues('signedDate'), "d 'de' MMMM 'de' yyyy", { locale: es })}` ||
               '';
           }
+
           wordTemplate.content = wordTemplate.content.replace(variable, variableValue);
           variableValue = '';
         });
       }
 
-      // console.log('wordTemplate', wordTemplate.content);
-
-      form.setValue('content', wordTemplate.content);
+      const finalContent = wordTemplate.content;
+      form.setValue('contractContent', finalContent, { shouldDirty: true });
+      setIsContentReady(true);
     }
-  }, [wordTemplate, form]);
+  }, [isLoading, wordTemplate, tenant, owner, guarantors, guarantors2, property, form]);
 
-  if (!wordTemplate) {
-    return null;
-  }
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent
@@ -229,14 +215,28 @@ const ContractModalGenerate = ({ open, onClose, form }: ContractModalGeneratePro
               <DialogTitle className='dialog-title'>Generar contrato para la alquiler</DialogTitle>
               <DialogDescription />
             </DialogHeader>
-            {/* <Textarea>{wordTemplate?.content || 'No hay plantilla de word seleccionada'}</Textarea> */}
-            <TextareaField
-              label='Contrato'
-              name='content'
-              form={form}
-              className='w-full'
-              rows={20}
-            />
+
+            {!isContentReady ? (
+              <div className='flex items-center justify-center py-20'>
+                <LoaderIcon className='h-8 w-8 animate-spin' />
+              </div>
+            ) : (
+              <FormProvider {...form}>
+                <div style={{ minWidth: '600px' }}>
+                  <EditorTiptap
+                    key={`editor-${isContentReady}`}
+                    name='contractContent'
+                    label='Contrato'
+                    form={form}
+                  />
+                </div>
+              </FormProvider>
+            )}
+            <div className='flex justify-end'>
+              <Button type='button' onClick={onClose}>
+                Cerrar
+              </Button>
+            </div>
           </div>
         </FormProvider>
       </DialogContent>

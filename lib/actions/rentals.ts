@@ -60,9 +60,35 @@ export async function updateRental(
   data: Partial<Omit<PrismaRental, 'id' | 'createdAt' | 'updatedAt'>>
 ) {
   try {
+    // Separar los campos de relaciones y campos que no existen en el modelo
+    const { propertyId, tenantId, ownerId, guarantors, wordTemplateId, content, ...otherData } =
+      data as any;
+
+    // Construir el objeto de datos para Prisma
+    const updateData: any = { ...otherData };
+
+    // Agregar operaciones anidadas para las relaciones
+    if (propertyId) {
+      updateData.property = { connect: { id: propertyId } };
+    }
+    if (tenantId) {
+      updateData.tenant = { connect: { id: tenantId } };
+    }
+    if (ownerId) {
+      updateData.owner = { connect: { id: ownerId } };
+    }
+    if (guarantors && Array.isArray(guarantors)) {
+      updateData.guarantors = {
+        set: guarantors.map((id: string) => ({ id })),
+      };
+    }
+    if (wordTemplateId) {
+      updateData.wordTemplate = { connect: { id: wordTemplateId } };
+    }
+
     const rental = await prisma.rental.update({
       where: { id },
-      data,
+      data: updateData,
     });
     revalidatePath('/dashboard/rentals');
     return rental;

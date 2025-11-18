@@ -1,7 +1,21 @@
 import z from 'zod';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
 import { FieldErrors, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
+import {
+  Bold,
+  Italic,
+  UnderlineIcon,
+  List,
+  ListOrdered,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
+} from 'lucide-react';
 
 import {
   Dialog,
@@ -10,16 +24,20 @@ import {
   DialogDescription,
   DialogContent,
 } from '@/components/ui/dialog';
-import { Form } from '@/components/ui/form';
-import { Button } from '@/components/ui/button';
-import { InputField } from '@/components/ui/custom/input-field';
-import { SubmitButton } from '@/components/ui/custom/submit-button';
-import TextareaField from '@/components/ui/custom/textarea-field';
-import { wordTemplateFormSchema } from '@/shared/schemas';
-import { WordTemplate } from '@/shared/types';
-import { TypeWordTemplatesDropdown } from '@/components/ui/dropdowns/TypeWordTemplatesDropdown';
-import { useCreateWordTemplate, useUpdateWordTemplate } from '@/hooks/use-word-templates';
 import { Variables } from './Variables';
+import { Form } from '@/components/ui/form';
+import { Label } from '@/components/ui/label';
+import { WordTemplate } from '@/shared/types';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { wordTemplateFormSchema } from '@/shared/schemas';
+import { InputField } from '@/components/ui/custom/input-field';
+import TextareaField from '@/components/ui/custom/textarea-field';
+import { SubmitButton } from '@/components/ui/custom/submit-button';
+import { useCreateWordTemplate, useUpdateWordTemplate } from '@/hooks/use-word-templates';
+import { TypeWordTemplatesDropdown } from '@/components/ui/dropdowns/TypeWordTemplatesDropdown';
+import { TextStyle } from '@tiptap/extension-text-style';
+import TextAlign from '@tiptap/extension-text-align';
 
 interface ModalProps {
   open: boolean;
@@ -36,13 +54,7 @@ const defaultValues = {
 };
 
 const Modal = ({ open, closeModal, template }: ModalProps) => {
-  const [textareaCursorPosition, setTextareaCursorPosition] = useState<number | undefined>(
-    undefined
-  );
   const mode = template ? 'EDIT' : 'CREATE';
-
-  const cursorPositionRef = useRef<number>(-1);
-  const originExpression = useRef<string | null>(null);
 
   const createWordTemplateMutation = useCreateWordTemplate();
   const updateWordTemplateMutation = useUpdateWordTemplate();
@@ -52,66 +64,97 @@ const Modal = ({ open, closeModal, template }: ModalProps) => {
     defaultValues,
   });
 
+  // const editor = useEditor({
+  //   extensions: [StarterKit, Underline],
+  //   content: form.watch('content') || '',
+  //   immediatelyRender: false,
+  //   onUpdate: ({ editor }) => {
+  //     form.setValue('content', editor.getHTML(), { shouldDirty: true });
+  //   },
+  //   editorProps: {
+  //     attributes: {
+  //       class: 'prose prose-sm max-w-none focus:outline-none min-h-[400px] p-4',
+  //     },
+  //   },
+  // });
+
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Underline,
+      TextStyle.extend({
+        addAttributes() {
+          return {
+            fontSize: {
+              default: '18px',
+              parseHTML: (element) => element.style.fontSize || '18px',
+              renderHTML: (attributes) => {
+                if (!attributes.fontSize) return { style: 'font-size: 18px' };
+                return {
+                  style: `font-size: ${attributes.fontSize}`,
+                };
+              },
+            },
+          };
+        },
+      }),
+      TextAlign.configure({
+        types: ['heading', 'paragraph'],
+      }),
+    ],
+    content: form.watch('content') || '',
+    immediatelyRender: false,
+    onUpdate: ({ editor }) => {
+      form.setValue('content', editor.getHTML(), { shouldDirty: true });
+    },
+    editorProps: {
+      attributes: {
+        class: 'prose prose-sm max-w-none focus:outline-none min-h-[400px] p-4',
+      },
+    },
+  });
+
   useEffect(() => {
     if (template) {
       form.reset({
         ...template,
         variables: template.variables as string[],
       });
+      if (editor) {
+        editor.commands.setContent(template.content);
+      }
+    } else {
+      form.reset(defaultValues);
+      if (editor) {
+        editor.commands.setContent('');
+      }
     }
-  }, [template, form]);
-
-  useEffect(() => {
-    originExpression.current = form.getValues('content');
-  }, [form.getValues('content')]);
+  }, [template, form, editor]);
 
   const handleAddData = (param: string) => {
     const value = `{{${param}}}`;
 
-    form.clearErrors('content');
-
-    const currentText = form.getValues('content') || '';
-    let newText;
-
-    if (cursorPositionRef.current === -1) cursorPositionRef.current = currentText.length;
-
-    if (currentText.length === 0) {
-      newText = value + ' ';
-      cursorPositionRef.current = newText.length;
-    } else {
-      newText =
-        currentText.substring(0, cursorPositionRef.current) +
-        ' ' +
-        value +
-        ' ' +
-        currentText.substring(cursorPositionRef.current);
-      cursorPositionRef.current = cursorPositionRef.current + value.length + 2;
+    if (editor) {
+      // Insertar la variable en la posición del cursor
+      editor.chain().focus().insertContent(` ${value} `).run();
+      form.clearErrors('content');
     }
-
-    form.setValue('content', newText);
-    setTextareaCursorPosition(cursorPositionRef.current);
-    form.setFocus('content');
   };
 
   const onSubmit = async (values: z.infer<typeof wordTemplateFormSchema>) => {
-    // TODO: Get variables from the content
-    // Las variables comienzan con {{ y terminan con }}
-
-    console.log('submit values', values);
-
+    // Extraer variables del contenido
     const variables = values.content.match(/{{.*?}}/g);
     let variablesArray: string[] = [];
     if (variables) {
       variablesArray = variables.map((variable) => variable.replace(/{{/g, '').replace(/}}/g, ''));
     }
+
     try {
       const data = {
         ...values,
         variables: variablesArray,
         description: values.description || '',
       };
-
-      console.log(data);
 
       if (mode === 'CREATE') {
         await createWordTemplateMutation.mutateAsync(data);
@@ -133,7 +176,9 @@ const Modal = ({ open, closeModal, template }: ModalProps) => {
     console.log('errors', errors);
   };
 
-  // console.log("form", form.getValues());
+  if (!editor) {
+    return null;
+  }
 
   return (
     <Dialog open={open} onOpenChange={closeModal}>
@@ -172,21 +217,124 @@ const Modal = ({ open, closeModal, template }: ModalProps) => {
                   />
 
                   <div className='col-span-2 flex w-full gap-4'>
-                    <TextareaField
-                      label='Contenido'
-                      name='content'
-                      placeholder='Contenido'
-                      form={form}
-                      className='w-3/4'
-                      rows={20}
-                      inputClassname='overflow-y-auto h-[400px]'
-                      cursorPosition={textareaCursorPosition}
-                      onBlur={(v) => (cursorPositionRef.current = v.target.selectionStart)}
-                    />
-                    <Variables className='h-[398px] w-1/4' handleAddData={handleAddData} />
+                    <div className='h-[470px] w-3/4'>
+                      <Label className='mb-1 block text-sm font-medium'>Contenido</Label>
+
+                      <div className='border-input flex gap-1 rounded-t-md border p-2'>
+                        <button
+                          type='button'
+                          onClick={() => editor.chain().focus().toggleBold().run()}
+                          className={`bg-background hover:bg-primary/90 rounded border p-2 ${editor.isActive('bold') ? 'bg-muted-foreground' : ''}`}
+                          title='Negrita'
+                        >
+                          <Bold size={18} />
+                        </button>
+                        <button
+                          type='button'
+                          onClick={() => editor.chain().focus().toggleItalic().run()}
+                          className={`bg-background hover:bg-primary/90 rounded p-2 ${editor.isActive('italic') ? 'bg-muted-foreground' : ''}`}
+                          title='Itálica'
+                        >
+                          <Italic size={18} />
+                        </button>
+                        <button
+                          type='button'
+                          onClick={() => editor.chain().focus().toggleUnderline().run()}
+                          className={`bg-background hover:bg-primary/90 rounded p-2 ${editor.isActive('underline') ? 'bg-muted-foreground' : ''}`}
+                          title='Subrayado'
+                        >
+                          <UnderlineIcon size={18} />
+                        </button>
+                        <div className='bg-border mx-1 w-px'></div>
+                        <button
+                          type='button'
+                          onClick={() => editor.chain().focus().toggleBulletList().run()}
+                          className={`bg-background hover:bg-primary/90 rounded p-2 ${editor.isActive('bulletList') ? 'bg-muted-foreground' : ''}`}
+                          title='Lista con viñetas'
+                        >
+                          <List size={18} />
+                        </button>
+                        <button
+                          type='button'
+                          onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                          className={`bg-background hover:bg-primary/90 rounded p-2 ${editor.isActive('orderedList') ? 'bg-muted-foreground' : ''}`}
+                          title='Lista numerada'
+                        >
+                          <ListOrdered size={18} />
+                        </button>
+                        <div className='bg-border mx-1 w-px'></div>
+                        <button
+                          type='button'
+                          onClick={() => editor.chain().focus().setTextAlign('left').run()}
+                          className={`bg-background hover:bg-primary/90 rounded p-2 ${editor.isActive({ textAlign: 'left' }) ? 'bg-muted-foreground' : ''}`}
+                          title='Alinear a la izquierda'
+                        >
+                          <AlignLeft size={18} />
+                        </button>
+                        <button
+                          type='button'
+                          onClick={() => editor.chain().focus().setTextAlign('center').run()}
+                          className={`bg-background hover:bg-primary/90 rounded p-2 ${editor.isActive({ textAlign: 'center' }) ? 'bg-muted-foreground' : ''}`}
+                          title='Centrar'
+                        >
+                          <AlignCenter size={18} />
+                        </button>
+                        <button
+                          type='button'
+                          onClick={() => editor.chain().focus().setTextAlign('right').run()}
+                          className={`bg-background hover:bg-primary/90 rounded p-2 ${editor.isActive({ textAlign: 'right' }) ? 'bg-muted-foreground' : ''}`}
+                          title='Alinear a la derecha'
+                        >
+                          <AlignRight size={18} />
+                        </button>
+                        <button
+                          type='button'
+                          onClick={() => editor.chain().focus().setTextAlign('justify').run()}
+                          className={`bg-background hover:bg-primary/90 rounded p-2 ${editor.isActive({ textAlign: 'justify' }) ? 'bg-muted-foreground' : ''}`}
+                          title='Justificar'
+                        >
+                          <AlignJustify size={18} />
+                        </button>
+                        <div className='bg-border mx-1 w-px'></div>
+                        <select
+                          onChange={(e) => {
+                            const fontSize = e.target.value;
+                            setTimeout(() => {
+                              if (fontSize) {
+                                editor.chain().focus().setMark('textStyle', { fontSize }).run();
+                              } else {
+                                editor.chain().focus().unsetMark('textStyle').run();
+                              }
+                            }, 0);
+                          }}
+                          className='bg-background hover:bg-primary/90 rounded border px-2 py-2 text-sm'
+                          title='Tamaño de fuente'
+                        >
+                          <option value=''>Tamaño</option>
+                          <option value='10px'>10px</option>
+                          <option value='12px'>12px</option>
+                          <option value='14px'>14px</option>
+                          <option value='16px'>16px</option>
+                          <option value='18px'>18px</option>
+                          <option value='20px'>20px</option>
+                          <option value='24px'>24px</option>
+                          <option value='28px'>28px</option>
+                          <option value='32px'>32px</option>
+                        </select>
+                      </div>
+
+                      {/* Editor */}
+                      <div className='border-input rounded-b-md border border-t-0'>
+                        <ScrollArea className='h-[400px]'>
+                          <EditorContent editor={editor} />
+                        </ScrollArea>
+                      </div>
+                    </div>
+
+                    <Variables className='h-[460px] w-1/4' handleAddData={handleAddData} />
                   </div>
 
-                  <div className='col-span-2 flex justify-end gap-8 pt-10'>
+                  <div className='col-span-2 flex justify-end gap-8 pt-6'>
                     <Button
                       type='button'
                       onClick={closeModal}
