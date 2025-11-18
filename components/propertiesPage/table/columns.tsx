@@ -4,6 +4,7 @@ import { EditIcon, Trash2Icon } from 'lucide-react';
 import { TruncatedCell } from '@/components/ui/custom/truncatedCell';
 import { Property } from '@/shared/types';
 import { propertyStatus as propertyStatusConstants } from '@/shared/constanst';
+import { Badge } from '@/components/ui/badge';
 
 type DataTableColumnsProps = {
   onEdit: (property: Property) => void;
@@ -26,7 +27,26 @@ export const getColumns = ({ onEdit, onDelete }: DataTableColumnsProps): ColumnD
     size: 120,
     cell: ({ row }) => {
       const property = row.original;
-      return <TruncatedCell value={propertyStatusConstants[property.status]} linesMax={2} />;
+      if (property.status === 'RENTED') {
+        return (
+          <Badge variant='outline' className='mx-auto bg-green-300 text-green-900'>
+            {propertyStatusConstants[property.status]}
+          </Badge>
+        );
+      } else if (property.status === 'INACTIVE') {
+        return (
+          <Badge variant='outline' className='mx-auto bg-red-300 text-red-900'>
+            {propertyStatusConstants[property.status]}
+          </Badge>
+        );
+      } else if (property.status === 'ACTIVE') {
+        return (
+          <Badge variant='outline' className='mx-auto bg-blue-300 text-blue-900'>
+            {propertyStatusConstants[property.status]}
+          </Badge>
+        );
+      }
+      return <Badge variant='outline'>{propertyStatusConstants[property.status]}</Badge>;
     },
   },
   {
