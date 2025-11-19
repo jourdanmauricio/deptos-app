@@ -183,36 +183,12 @@ export const rentalVariables = [
     label: 'Penalidad de entrega',
   },
   {
-    name: 'garante_nombres',
-    label: 'Nombres del garante',
+    name: 'garantes_info',
+    label: 'Información de garantes',
   },
   {
-    name: 'garante_apellidos',
-    label: 'Apellidos del garante',
-  },
-  {
-    name: 'garante_dni',
-    label: 'DNI del garante',
-  },
-  {
-    name: 'garante_cuil',
-    label: 'CUIL del garante',
-  },
-  {
-    name: 'garante2_nombres',
-    label: 'Nombres del garante 2',
-  },
-  {
-    name: 'garante2_apellidos',
-    label: 'Apellidos del garante 2',
-  },
-  {
-    name: 'garante2_dni',
-    label: 'DNI del garante 2',
-  },
-  {
-    name: 'garante2_cuil',
-    label: 'CUIL del garante 2',
+    name: 'firmas_info',
+    label: 'Firmas',
   },
   {
     name: 'fecha_firma',

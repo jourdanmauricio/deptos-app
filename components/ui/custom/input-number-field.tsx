@@ -116,9 +116,7 @@ export default function InputNumberField({
               type='text'
               tabIndex={props.readOnly ? -1 : 0}
               className={`${
-                fieldState.invalid
-                  ? 'border-destructive text-destructive placeholder:text-destructive focus-visible:ring-destructive border'
-                  : ''
+                fieldState.invalid ? 'border-destructive focus-visible:ring-destructive border' : ''
               }`}
               // {...field}
               value={typeof field.value === 'string' ? field.value.replace('.', ',') : field.value}

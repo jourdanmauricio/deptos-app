@@ -93,8 +93,7 @@ export const rentalFormSchema = z.object({
   ]),
   billing: z.boolean(),
   contractUrl: z.string().optional(),
-  wordTemplateId: z.string().optional(),
-  // content: z.string().optional(),
+  wordTemplateId: z.string().min(1, 'Requerido'),
   observation: z.string().optional(),
   contractContent: z.string().optional(),
 });

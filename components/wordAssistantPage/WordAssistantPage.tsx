@@ -10,6 +10,7 @@ import { WordTemplate } from '@/shared/types/word-template';
 import { FilterFn, Row, SortingState } from '@tanstack/react-table';
 import { getColumns } from '@/components/wordAssistantPage/table/columns';
 import { Modal } from '@/components/wordAssistantPage/Modal';
+import CustomAlertDialog from '@/components/ui/custom/custom-alert-dialog';
 
 const WordAssistantPage = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -97,6 +98,17 @@ const WordAssistantPage = () => {
             setModalIsOpen(false);
           }}
           template={currentRow}
+        />
+      )}
+      {deleteModalIsOpen && (
+        <CustomAlertDialog
+          open={deleteModalIsOpen}
+          onCloseDialog={() => setDeleteModalIsOpen(false)}
+          onContinueClick={() => deleteWordTemplateMutation.mutate(currentRow!.id.toString())}
+          title={'¿Estás seguro de eliminar esta plantilla?'}
+          description={'Esta acción no se puede deshacer.'}
+          cancelButtonText={'Cancelar'}
+          continueButtonText={'Eliminar'}
         />
       )}
     </div>

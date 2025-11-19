@@ -18,7 +18,7 @@ export function useWordTemplates() {
 export function useWordTemplate(wordTemplateId: string) {
   return useQuery({
     queryKey: ['wordTemplate', wordTemplateId],
-    queryFn: () => getWordTemplateById(wordTemplateId),
+    queryFn: () => getWordTemplateById(+wordTemplateId),
     enabled: !!wordTemplateId,
   });
 }
@@ -41,7 +41,7 @@ export function useUpdateWordTemplate() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) => updateWordTemplate(id, data),
+    mutationFn: ({ id, data }: { id: string; data: any }) => updateWordTemplate(+id, data),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['wordTemplates'] });
       toast.success('Plantilla de Word actualizada correctamente');
@@ -56,7 +56,7 @@ export function useDeleteWordTemplate() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: deleteWordTemplate,
+    mutationFn: (id: string) => deleteWordTemplate(+id),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['wordTemplates'] });
       toast.success('Plantilla de Word eliminada correctamente');

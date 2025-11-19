@@ -209,7 +209,7 @@ model Rental {
   // Relación con pagos
   payments       Payment[]
   // Relación con plantilla de word
-  wordTemplateId String?
+  wordTemplateId Int?
   wordTemplate   WordTemplate? @relation(fields: [wordTemplateId], references: [id])
 }
 
@@ -221,7 +221,7 @@ enum WordTemplateType {
 }
 
 model WordTemplate {
-  id          String           @id @default(uuid())
+  id          Int              @id @default(autoincrement())
   name        String
   type        WordTemplateType
   description String

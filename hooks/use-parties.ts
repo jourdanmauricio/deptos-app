@@ -19,6 +19,7 @@ export function usePartyById(id: string) {
   return useQuery({
     queryKey: ['parties', id],
     queryFn: () => getPartyById(id),
+    enabled: !!id,
   });
 }
 

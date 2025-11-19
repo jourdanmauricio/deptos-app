@@ -39,7 +39,7 @@ const PartiesDropdown = ({
     select: (data) =>
       data.map((party) => ({
         id: party.id,
-        description: party.name,
+        description: party.lastName + ', ' + party.name,
         type: party.type,
       })),
     staleTime: 1000 * 60 * 5, // 5 minutos

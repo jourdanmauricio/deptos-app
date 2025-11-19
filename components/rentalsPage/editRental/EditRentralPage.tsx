@@ -1,32 +1,32 @@
 'use client';
 
 import z from 'zod';
+import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState, useTransition } from 'react';
-import { FieldErrors, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { FieldErrors, useForm } from 'react-hook-form';
+import { useEffect, useState, useTransition } from 'react';
+import { LoaderIcon, PlusIcon, TrashIcon } from 'lucide-react';
 
 import { Form } from '@/components/ui/form';
-import { useCreateRental, useUpdateRental, useRental } from '@/hooks/use-rentals';
-import { rentalFormSchema } from '@/shared/schemas';
-import { PropertiesDropdown } from '@/components/ui/dropdowns/PropertiesDropdown';
-import { PartiesDropdown } from '@/components/ui/dropdowns/PartiesDropdown';
 import { Button } from '@/components/ui/button';
-import { Loader2Icon, LoaderIcon, PlusIcon, TrashIcon } from 'lucide-react';
+import { rentalFormSchema } from '@/shared/schemas';
 import { Modal } from '@/components/partiesPage/Modal';
-import { InputDatePicker } from '@/components/ui/custom/input-date-picker';
-import InputNumberField from '@/components/ui/custom/input-number-field';
-import { TypeIndexationDropdown } from '@/components/ui/dropdowns/TypeIndexationDropdown';
-import { IndexationType, PaymentMethod, RentalStatus } from '@/lib/generated/prisma';
-import { RentalStatusDropdown } from '@/components/ui/dropdowns/RentalStatusDropdown';
-import { TypePaymentMethodDropdown } from '@/components/ui/dropdowns/TypePaymentMethodDropdown';
-import BooleanCheckbox from '@/components/ui/custom/boolean-checkbox';
+import { ContractModalGenerate } from '../ContractModalGenerate';
 import TextareaField from '@/components/ui/custom/textarea-field';
 import { SubmitButton } from '@/components/ui/custom/submit-button';
+import BooleanCheckbox from '@/components/ui/custom/boolean-checkbox';
+import InputNumberField from '@/components/ui/custom/input-number-field';
 import ImageUpload from '@/components/ui/custom/image-upload/ImageUpload';
-import { TypeWordTemplatesDropdown } from '@/components/ui/dropdowns/TypeWordTemplatesDropdown';
+import { InputDatePicker } from '@/components/ui/custom/input-date-picker';
+import { PartiesDropdown } from '@/components/ui/dropdowns/PartiesDropdown';
+import { useCreateRental, useUpdateRental, useRental } from '@/hooks/use-rentals';
+import { PropertiesDropdown } from '@/components/ui/dropdowns/PropertiesDropdown';
+import { IndexationType, PaymentMethod, RentalStatus } from '@/lib/generated/prisma';
+import { RentalStatusDropdown } from '@/components/ui/dropdowns/RentalStatusDropdown';
 import { WordTemplatesDropdown } from '@/components/ui/dropdowns/WordTemplatesDropdown';
-import { ContractModalGenerate } from '../ContractModalGenerate';
+import { TypeIndexationDropdown } from '@/components/ui/dropdowns/TypeIndexationDropdown';
+import { TypePaymentMethodDropdown } from '@/components/ui/dropdowns/TypePaymentMethodDropdown';
 
 type EditRentalPageProps = {
   rentalId: string;
@@ -39,13 +39,11 @@ const defaultValues = {
   ownerId: '',
   signedDate: new Date(),
   contractDurationYears: '2',
-  // startDate es la fecha 01 del siguiente mes
   startDate: (() => {
     const date = new Date();
     date.setMonth(date.getMonth() + 1, 1);
     return date;
   })(),
-  // endDate es la fecha startDate + 2 años
   endDate: (() => {
     const date = new Date();
     date.setMonth(date.getMonth() + 1, 1);
@@ -53,7 +51,7 @@ const defaultValues = {
     return date;
   })(),
   terminationDate: undefined,
-  initialRent: '0',
+  initialRent: '',
   rentUpdateMonths: '3',
   penaltyRate: '0,5',
   rescissionRate: '2,5',
@@ -65,16 +63,16 @@ const defaultValues = {
   billing: false,
   contractUrl: '',
   observation: '',
-  wordTemplateId: '',
+  wordTemplateId: '1', // Sin plantilla
   contractContent: '',
 };
-// terminationDate
 
 const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [_, startTransition] = useTransition();
-  const { data: rental, isLoading, isFetching, error } = useRental(rentalId);
   const [contractModalIsOpen, setContractModalIsOpen] = useState(false);
+  const [_, startTransition] = useTransition();
+
+  const { data: rental, isLoading, isFetching, error } = useRental(rentalId);
 
   const mode = rentalId === 'new' ? 'NEW' : 'EDIT';
 
@@ -87,6 +85,12 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
     resolver: zodResolver(rentalFormSchema),
     defaultValues,
   });
+
+  useEffect(() => {
+    if (error) {
+      toast.error('Error al cargar el alquiler');
+    }
+  }, [error]);
 
   useEffect(() => {
     if (rental && !isLoading && !isFetching) {
@@ -113,7 +117,7 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
           contractUrl: rental.contractUrl || '',
           observation: rental.observation || '',
           currency: rental.currency || 'ARS',
-          wordTemplateId: rental.wordTemplateId || '',
+          wordTemplateId: rental.wordTemplateId?.toString() || '',
           contractContent: rental.contractContent || '',
         });
       });
@@ -154,7 +158,7 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
           .filter((id) => id) // Filtrar strings vacíos
           .map((id) => ({ id })),
       },
-      wordTemplateId: values.wordTemplateId || null,
+      wordTemplateId: values.wordTemplateId ? Number(values.wordTemplateId) : null,
       contractContent: values.contractContent || '',
     };
 
@@ -170,13 +174,44 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
         router.push('/dashboard/rentals');
       }
     } catch (error) {
-      // El error ya se maneja en el hook con toast
       console.error('Error en submit:', error);
     }
   };
 
   const onError = (errors: FieldErrors<z.infer<typeof rentalFormSchema>>) => {
     console.log('errors', errors);
+  };
+
+  const handleViewContract = async () => {
+    await form.trigger();
+    let errorMessage = '';
+
+    if (form.formState.errors.propertyId) {
+      errorMessage += 'propiedad, ';
+    }
+    if (form.formState.errors.tenantId) {
+      errorMessage += 'inquilino, ';
+    }
+    if (form.formState.errors.ownerId) {
+      errorMessage += 'propietario, ';
+    }
+    if (form.formState.errors.initialRent) {
+      errorMessage += 'precio inicial, ';
+    }
+    if (form.watch('wordTemplateId') === '') {
+      errorMessage += 'plantilla de word, ';
+    }
+
+    if (errorMessage.length > 0) {
+      errorMessage = 'Debe completar los siguientes campos: ' + errorMessage.slice(0, -2);
+    }
+
+    if (errorMessage) {
+      toast.error(errorMessage);
+      return;
+    }
+
+    setContractModalIsOpen(true);
   };
 
   return (
@@ -256,14 +291,16 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
                 </div>
               ))}
 
-              {(form.watch('guarantors')?.length || 0) < 2 && (
+              {form.watch('guarantors')?.length === 2 && <div className='h-[64px]'></div>}
+
+              {(form.watch('guarantors')?.length || 0) < 3 && (
                 <div className='mb-1 flex w-full items-end justify-center gap-4'>
                   <Button
                     className='w-full'
                     type='button'
                     onClick={() => handleAddGuarantor()}
                     disabled={
-                      (form.getValues('guarantors')?.length || 0) >= 2 ||
+                      (form.getValues('guarantors')?.length || 0) >= 3 ||
                       (form.getValues('guarantors')?.includes('') ?? false)
                     }
                   >
@@ -271,6 +308,7 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
                   </Button>
                 </div>
               )}
+              {form.watch('guarantors')?.length === 3 && <div className='h-[64px]'></div>}
 
               <InputNumberField
                 label='Duración del contrato (años)'
@@ -366,7 +404,11 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
                   name='initialRent'
                   form={form}
                   className='w-full'
+                  placeholder='Precio inicial'
                   regExp={/^(0|(0,\d{0,2})|([1-9]\d{0,8})(,\d{0,2})?)?$/}
+                  onChangeInputNumberField={(e) => {
+                    form.clearErrors('initialRent');
+                  }}
                 />
 
                 <BooleanCheckbox
@@ -387,17 +429,13 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
               />
 
               <WordTemplatesDropdown
-                label='Plantilla de Word'
+                label='Plantilla modelo (template)'
                 name='wordTemplateId'
                 form={form}
                 className='w-full'
               />
 
-              <Button
-                type='button'
-                className='mb-1 self-end'
-                onClick={() => setContractModalIsOpen(true)}
-              >
+              <Button type='button' className='mb-1 self-end' onClick={handleViewContract}>
                 Editar contrato
               </Button>
             </div>

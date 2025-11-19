@@ -1,8 +1,10 @@
 import z from 'zod';
 import { es } from 'date-fns/locale';
-import React, { useEffect, useState } from 'react';
+import { LoaderIcon } from 'lucide-react';
 import { addMonths, format } from 'date-fns';
+import React, { useEffect, useState } from 'react';
 import { UseFormReturn, FormProvider } from 'react-hook-form';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
   Dialog,
@@ -11,15 +13,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { usePartyById } from '@/hooks/use-parties';
 import { rentalFormSchema } from '@/shared/schemas';
 import { indexationTypes } from '@/shared/constanst';
+import { getPartyById } from '@/lib/actions/parties';
 import { numberToText } from '@/lib/utils/numberToText';
 import { usePropertyById } from '@/hooks/use-properties';
 import { useWordTemplate } from '@/hooks/use-word-templates';
 import { EditorTiptap } from '@/components/ui/custom/editor-tiptap';
-import { LoaderIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 interface ContractModalGenerateProps {
   open: boolean;
@@ -31,18 +33,40 @@ const ContractModalGenerate = ({ open, onClose, form }: ContractModalGeneratePro
   const [isContentReady, setIsContentReady] = useState(false);
 
   const wordTemplateId = form.getValues('wordTemplateId');
+  const queryClient = useQueryClient();
 
   const { data: wordTemplate, isLoading: isLoadingWordTemplate } = useWordTemplate(
     wordTemplateId || ''
   );
   const { data: tenant, isLoading: isLoadingTenant } = usePartyById(form.getValues('tenantId'));
   const { data: owner, isLoading: isLoadingOwner } = usePartyById(form.getValues('ownerId'));
-  const { data: guarantors, isLoading: isLoadingGuarantors } = usePartyById(
-    form.getValues('guarantors')[0]
-  );
-  const { data: guarantors2, isLoading: isLoadingGuarantors2 } = usePartyById(
-    form.getValues('guarantors')[1]
-  );
+
+  const guarantorsList = form.watch('guarantors');
+
+  const { data: guarantor1, isLoading: isLoadingGuarantor1 } = useQuery({
+    queryKey: ['parties', guarantorsList?.[0]],
+    queryFn: () => getPartyById(guarantorsList?.[0]),
+    enabled: !!guarantorsList?.[0],
+  });
+
+  const { data: guarantor2, isLoading: isLoadingGuarantor2 } = useQuery({
+    queryKey: ['parties', guarantorsList?.[1]],
+    queryFn: () => getPartyById(guarantorsList?.[1]),
+    enabled: !!guarantorsList?.[1],
+  });
+
+  const { data: guarantor3, isLoading: isLoadingGuarantor3 } = useQuery({
+    queryKey: ['parties', guarantorsList?.[2]],
+    queryFn: () => getPartyById(guarantorsList?.[2]),
+    enabled: !!guarantorsList?.[2],
+  });
+
+  const guarantorData = [
+    { guarantorData: guarantor1, isLoadingGuarantor: isLoadingGuarantor1 },
+    { guarantorData: guarantor2, isLoadingGuarantor: isLoadingGuarantor2 },
+    { guarantorData: guarantor3, isLoadingGuarantor: isLoadingGuarantor3 },
+  ].filter((g) => g.guarantorData);
+
   const { data: property, isLoading: isLoadingProperty } = usePropertyById(
     form.getValues('propertyId')
   );
@@ -51,9 +75,19 @@ const ContractModalGenerate = ({ open, onClose, form }: ContractModalGeneratePro
     isLoadingWordTemplate ||
     isLoadingTenant ||
     isLoadingOwner ||
-    isLoadingGuarantors ||
-    isLoadingGuarantors2 ||
+    isLoadingGuarantor1 ||
+    isLoadingGuarantor2 ||
+    isLoadingGuarantor3 ||
     isLoadingProperty;
+
+  const handleClose = () => {
+    queryClient.invalidateQueries({ queryKey: ['parties'] });
+
+    setIsContentReady(false);
+    form.setValue('contractContent', '');
+
+    onClose();
+  };
 
   useEffect(() => {
     if (form.getValues('contractContent')) {
@@ -156,33 +190,23 @@ const ContractModalGenerate = ({ open, onClose, form }: ContractModalGeneratePro
               `${format(form.getValues('endDate'), "d 'de' MMMM 'de' yyyy", { locale: es })}`.toUpperCase() ||
               '';
           }
-          if (variable === '{{garante_nombres}}') {
-            variableValue = `<strong>${guarantors?.name || ''}</strong>`;
+          if (variable === '{{garantes_info}}') {
+            guarantorData.forEach((guarantor, index) => {
+              variableValue += `<strong>${guarantor?.guarantorData?.lastName || ''} ${guarantor?.guarantorData?.name || ''}</strong> 
+            DNI ${guarantor?.guarantorData?.dni || ''} CUIL ${guarantor?.guarantorData?.cuil || ''}, 
+            con domicilio en ${guarantor?.guarantorData?.address || ''} ${index < guarantorData.length - 1 ? ' y ' : ', '}`;
+            });
+            variableValue = variableValue.slice(0, -3);
           }
-          if (variable === '{{garante_apellidos}}') {
-            variableValue = `<strong>${guarantors?.lastName || ''}</strong>`;
+
+          if (variable === '{{firmas_info}}') {
+            variableValue = `${owner?.lastName || ''}, ${owner?.name || ''} - DNI ${owner?.dni || ''} <br /><br /><br />
+            ${tenant?.lastName || ''}, ${tenant?.name || ''} - DNI ${tenant?.dni || ''} <br /><br /><br />`;
+            guarantorData.forEach((guarantor) => {
+              variableValue += `${guarantor?.guarantorData?.lastName || ''}, ${guarantor?.guarantorData?.name || ''} - DNI ${guarantor?.guarantorData?.dni || ''} <br /><br /><br />`;
+            });
           }
-          if (variable === '{{garante_dni}}') {
-            variableValue = guarantors?.dni || '';
-          }
-          if (variable === '{{garante_domicilio}}') {
-            variableValue = guarantors?.address || '';
-          }
-          if (variable === '{{garante_cuil}}') {
-            variableValue = guarantors?.cuil || '';
-          }
-          if (variable === '{{garante2_nombres}}') {
-            variableValue = `<strong>${guarantors2?.name || ''}</strong>`;
-          }
-          if (variable === '{{garante2_apellidos}}') {
-            variableValue = `<strong>${guarantors2?.lastName || ''}</strong>`;
-          }
-          if (variable === '{{garante2_dni}}') {
-            variableValue = guarantors2?.dni || '';
-          }
-          if (variable === '{{garante2_domicilio}}') {
-            variableValue = guarantors2?.address || '';
-          }
+
           if (variable === '{{fecha_firma}}') {
             variableValue =
               `${format(form.getValues('signedDate'), "d 'de' MMMM 'de' yyyy", { locale: es })}` ||
@@ -198,10 +222,10 @@ const ContractModalGenerate = ({ open, onClose, form }: ContractModalGeneratePro
       form.setValue('contractContent', finalContent, { shouldDirty: true });
       setIsContentReady(true);
     }
-  }, [isLoading, wordTemplate, tenant, owner, guarantors, guarantors2, property, form]);
+  }, [isLoading, wordTemplate, tenant, owner, guarantorData, property, guarantorsList, form]);
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent
         className='max-h-[95%] overflow-auto'
         style={{
@@ -233,7 +257,7 @@ const ContractModalGenerate = ({ open, onClose, form }: ContractModalGeneratePro
               </FormProvider>
             )}
             <div className='flex justify-end'>
-              <Button type='button' onClick={onClose}>
+              <Button type='button' onClick={handleClose}>
                 Cerrar
               </Button>
             </div>

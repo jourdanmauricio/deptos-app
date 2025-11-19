@@ -1,3 +1,7 @@
+import { cn } from '@/lib/utils';
+import { XCircle } from 'lucide-react';
+import { useEffect } from 'react';
+
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import {
   Select,
@@ -6,8 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { cn } from '@/lib/utils';
-import { X, XCircle } from 'lucide-react';
 
 import { useFormContext, type UseFormReturn } from 'react-hook-form';
 

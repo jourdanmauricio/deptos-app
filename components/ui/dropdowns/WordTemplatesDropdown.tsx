@@ -1,8 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import type { UseFormReturn } from 'react-hook-form';
 
-import { getParties } from '@/lib/actions/parties';
-import { PartyType } from '@/lib/generated/prisma';
 import Dropdown from '@/components/ui/custom/dropdown';
 import DropdownLoadSkeleton from '@/components/ui/skeletons/dropdownLoadSkeleton';
 import { getWordTemplates } from '@/lib/actions/word-templates';
@@ -16,7 +14,6 @@ type DropdownProps = {
   onChange?: (item: { id: string; description: string }) => void;
   label?: string;
   placeholder?: string;
-  typePartie?: PartyType;
   enableClean?: boolean;
 };
 
@@ -29,7 +26,6 @@ const WordTemplatesDropdown = ({
   onChange,
   label,
   placeholder,
-  typePartie,
   enableClean,
 }: DropdownProps) => {
   const labelName = label ?? 'Template Word' + (required ? '*' : '');
@@ -39,7 +35,7 @@ const WordTemplatesDropdown = ({
     queryFn: getWordTemplates,
     select: (data) =>
       data.map((wordTemplate) => ({
-        id: wordTemplate.id,
+        id: wordTemplate.id.toString(),
         description: wordTemplate.name,
       })),
   });

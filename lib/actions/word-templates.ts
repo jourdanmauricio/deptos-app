@@ -19,7 +19,7 @@ export async function getWordTemplates() {
   }
 }
 
-export async function getWordTemplateById(id: string) {
+export async function getWordTemplateById(id: number) {
   try {
     const wordTemplate = await prisma.wordTemplate.findUnique({
       where: { id },
@@ -49,7 +49,7 @@ export async function createWordTemplate(
 }
 
 export async function updateWordTemplate(
-  id: string,
+  id: number,
   data: Partial<Omit<WordTemplate, 'id' | 'createdAt' | 'updatedAt'>>
 ) {
   try {
@@ -90,7 +90,7 @@ export async function updateWordTemplate(
   }
 }
 
-export async function deleteWordTemplate(id: string) {
+export async function deleteWordTemplate(id: number) {
   try {
     await prisma.wordTemplate.delete({
       where: { id },
