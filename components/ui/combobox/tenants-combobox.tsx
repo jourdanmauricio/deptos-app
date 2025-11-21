@@ -43,7 +43,7 @@ export default function TenantsCombobox<T extends FieldValues = FieldValues>({
     queryKey: ['tenants'],
     queryFn: getTenants,
     select: (data) =>
-      data.map((tenant) => ({
+      data.map((tenant: any) => ({
         id: tenant.id,
         description: tenant.lastName + ', ' + tenant.name,
         type: tenant.type,

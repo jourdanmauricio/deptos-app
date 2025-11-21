@@ -128,8 +128,7 @@ export async function updateRental(
 ) {
   try {
     // Separar los campos de relaciones y campos que no existen en el modelo
-    const { propertyId, tenantId, ownerId, guarantors, wordTemplateId, content, ...otherData } =
-      data as any;
+    const { propertyId, tenantId, ownerId, guarantors, wordTemplateId, ...otherData } = data as any;
 
     // Construir el objeto de datos para Prisma
     const updateData: any = { ...otherData };

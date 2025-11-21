@@ -48,7 +48,7 @@ export function useUpdatePayment() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) => updatePayment(id, data),
-    onSuccess: async (data, variables) => {
+    onSuccess: async () => {
       try {
         await Promise.all([queryClient.invalidateQueries({ queryKey: ['payments'] })]);
       } catch (error) {
