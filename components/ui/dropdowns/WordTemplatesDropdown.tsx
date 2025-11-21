@@ -34,7 +34,7 @@ const WordTemplatesDropdown = ({
     queryKey: ['wordTemplates'],
     queryFn: getWordTemplates,
     select: (data) =>
-      data.map((wordTemplate) => ({
+      data.map((wordTemplate: any) => ({
         id: wordTemplate.id.toString(),
         description: wordTemplate.name,
       })),

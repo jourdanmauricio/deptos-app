@@ -40,7 +40,7 @@ const PropertiesDropdown = ({
     queryKey: ['properties'],
     queryFn: getProperties,
     select: (data) =>
-      data.map((property) => ({
+      data.map((property: any) => ({
         id: property.id,
         description: property.name,
         status: property.status as PropertyStatus,

@@ -13,7 +13,7 @@ export function usePayments(propertyId?: string) {
     queryKey: ['payments', propertyId],
     queryFn: () => getPayments(propertyId),
     select: (data) =>
-      data.filter((payment) => {
+      data.filter((payment: any) => {
         // Menor o igual a hoy + 4 meses
         const threeMonthsFromNow = new Date();
         threeMonthsFromNow.setMonth(threeMonthsFromNow.getMonth() + 4);

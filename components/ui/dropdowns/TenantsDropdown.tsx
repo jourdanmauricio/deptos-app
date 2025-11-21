@@ -37,7 +37,7 @@ const TenantsDropdown = ({
     queryKey: ['parties'],
     queryFn: getTenants,
     select: (data) =>
-      data.map((party) => ({
+      data.map((party: any) => ({
         id: party.id,
         description: party.lastName + ', ' + party.name,
         type: party.type,

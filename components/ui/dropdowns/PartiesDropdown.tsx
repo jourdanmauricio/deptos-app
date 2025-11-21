@@ -37,7 +37,7 @@ const PartiesDropdown = ({
     queryKey: ['parties'],
     queryFn: getParties,
     select: (data) =>
-      data.map((party) => ({
+      data.map((party: any) => ({
         id: party.id,
         description: party.lastName + ', ' + party.name,
         type: party.type,
