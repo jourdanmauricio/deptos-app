@@ -1,9 +1,15 @@
-# Dockerfile para Next.js 15 con Prisma en Coolify
+# Dockerfile para Next.js 15 con Prisma y LibSQL en Coolify
 # Multi-stage build para optimizar tamaño de imagen
+# Usa Debian Slim por compatibilidad con librerías nativas de LibSQL
 
 # Stage 1: Dependencias
-FROM node:20-alpine AS deps
-RUN apk add --no-cache libc6-compat openssl
+FROM node:20-slim AS deps
+
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y \
+    openssl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -15,8 +21,13 @@ COPY prisma ./prisma/
 RUN npm ci
 
 # Stage 2: Builder
-FROM node:20-alpine AS builder
-RUN apk add --no-cache libc6-compat openssl
+FROM node:20-slim AS builder
+
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y \
+    openssl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -32,8 +43,13 @@ ENV NODE_ENV=production
 RUN npm run build
 
 # Stage 3: Runner (Imagen final de producción)
-FROM node:20-alpine AS runner
-RUN apk add --no-cache openssl
+FROM node:20-slim AS runner
+
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y \
+    openssl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -41,8 +57,8 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Crear usuario no-root para seguridad
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN groupadd --system --gid 1001 nodejs
+RUN useradd --system --uid 1001 --gid nodejs nextjs
 
 # Copiar archivos necesarios para producción
 COPY --from=builder /app/public ./public
