@@ -104,7 +104,7 @@ const ContractModalGenerate = ({ open, onClose, form }: ContractModalGeneratePro
       let variableValue = '';
 
       if (variables) {
-        variables.forEach((variable) => {
+        variables.forEach((variable: string) => {
           if (variable === '{{propietario_nombres}}') {
             variableValue = `${owner?.name || ''}`;
           }
