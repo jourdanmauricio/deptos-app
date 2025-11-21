@@ -16,6 +16,7 @@ Este sistema está diseñado para administradores y gestores de propiedades inmo
 ## ✨ Características Principales
 
 ### Gestión de Propiedades
+
 - Registro completo de propiedades con información detallada
 - Control de servicios (gas, electricidad, agua, etc.)
 - Estados: Activa, Inactiva, Alquilada
@@ -23,12 +24,14 @@ Este sistema está diseñado para administradores y gestores de propiedades inmo
 - Historial de alquileres por propiedad
 
 ### Gestión de Participantes (Parties)
+
 - Registro de inquilinos, garantes y propietarios
 - Información completa: DNI, CUIL, teléfono, email, dirección
 - Datos laborales y bancarios
 - Carga de documentos (frente y dorso de DNI)
 
 ### Gestión de Contratos de Alquiler
+
 - Creación de contratos con duración personalizable
 - Tipos de indexación: IPC, ICL, o monto fijo
 - Configuración de penalidades y rescisión
@@ -37,6 +40,7 @@ Este sistema está diseñado para administradores y gestores de propiedades inmo
 - Generación automática de contratos en formato Word
 
 ### Control de Pagos
+
 - Registro detallado de pagos de alquiler
 - Conceptos: Alquiler, Expensas, Expensas extraordinarias, Depósito, Otros
 - Estados: Pendiente, Pagado, Pagado con atraso, Cancelado
@@ -46,12 +50,14 @@ Este sistema está diseñado para administradores y gestores de propiedades inmo
 - Filtros y búsqueda avanzada
 
 ### Asistente de Documentos Word
+
 - Plantillas personalizables para diferentes tipos de documentos
 - Variables dinámicas que se reemplazan automáticamente
 - Tipos de plantillas: Contratos habitacionales, comerciales, recibos, rescisiones
 - Generación de documentos en formato DOCX
 
 ### Dashboard y Reportes
+
 - Visualización de métricas clave
 - Gráficos interactivos
 - Resumen de propiedades y alquileres activos
@@ -60,6 +66,7 @@ Este sistema está diseñado para administradores y gestores de propiedades inmo
 ## 🛠️ Tecnologías Utilizadas
 
 ### Frontend
+
 - **Next.js 15** - Framework de React con App Router
 - **React 19** - Biblioteca de UI
 - **TypeScript** - Tipado estático
@@ -68,12 +75,14 @@ Este sistema está diseñado para administradores y gestores de propiedades inmo
 - **Radix UI** - Primitivos de UI accesibles
 
 ### Backend y Base de Datos
+
 - **Prisma** - ORM para gestión de base de datos
 - **SQLite** - Base de datos (configurable a PostgreSQL, MySQL, etc.)
 - **NextAuth.js** - Autenticación y autorización
 - **Turso (LibSQL)** - Soporte para base de datos en la nube
 
 ### Librerías Destacadas
+
 - **TanStack Table** - Tablas avanzadas con filtros y ordenamiento
 - **TanStack Query** - Gestión de estado del servidor
 - **React Hook Form** - Formularios con validación
@@ -87,18 +96,21 @@ Este sistema está diseñado para administradores y gestores de propiedades inmo
 ## 🚀 Instalación y Configuración
 
 ### Requisitos Previos
-- Node.js 18+ 
+
+- Node.js 18+
 - npm o pnpm
 
 ### Pasos de Instalación
 
 1. **Clonar el repositorio**
+
 ```bash
 git clone <url-del-repositorio>
 cd front
 ```
 
 2. **Instalar dependencias**
+
 ```bash
 npm install
 ```
@@ -121,6 +133,7 @@ NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET="tu-upload-preset"
 ```
 
 4. **Configurar la base de datos**
+
 ```bash
 # Generar el cliente de Prisma
 npx prisma generate
@@ -133,6 +146,7 @@ npx prisma db seed
 ```
 
 5. **Iniciar el servidor de desarrollo**
+
 ```bash
 npm run dev
 ```
@@ -211,6 +225,7 @@ Ver el archivo `prisma/schema.prisma` para más detalles del esquema de base de 
 ## 🎨 Temas
 
 La aplicación soporta múltiples temas:
+
 - Claro / Oscuro
 - Temas personalizados (rojo, naranja, verde, azul, amarillo, violeta)
 

@@ -1,6 +1,7 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  output: 'standalone', // Necesario para Docker deployment
   serverExternalPackages: ['@prisma/client', '@prisma/adapter-libsql', '@libsql/client'],
   webpack: (config, { isServer }) => {
     if (isServer) {

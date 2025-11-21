@@ -1,0 +1,48 @@
+# Dependencias
+node_modules
+npm-debug.log
+
+# Build de Next.js
+.next
+out
+build
+
+# Variables de entorno (Coolify las inyectará)
+.env
+.env.local
+.env*.local
+.env.production
+
+# Git
+.git
+.gitignore
+
+# Testing
+coverage
+.nyc_output
+
+# Misc
+.DS_Store
+*.pem
+.vscode
+.idea
+
+# Logs
+logs
+*.log
+
+# Archivos temporales
+.turbo
+*.tsbuildinfo
+next-env.d.ts
+
+# README y documentación
+README.md
+notas.md
+*.md
+
+# Docker files (no needed inside container)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
