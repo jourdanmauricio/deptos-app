@@ -112,7 +112,7 @@ const PartiesPage = () => {
     ];
 
     // Mapear los datos de Property
-    const exportData = dataToExport.map((party) => [
+    const exportData = dataToExport.map((party: Party) => [
       `${party.lastName}, ${party.name}`,
       party.address,
       party.type,

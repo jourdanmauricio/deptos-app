@@ -115,7 +115,7 @@ const PropertiesPage = () => {
     ];
 
     // Mapear los datos de Property
-    const exportData = dataToExport.map((property) => [
+    const exportData = dataToExport.map((property: Property) => [
       property.name,
       property.address,
       property.owner,
