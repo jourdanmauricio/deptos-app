@@ -99,7 +99,7 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
         form.reset({
           propertyId: rental.propertyId,
           tenantId: rental.tenantId,
-          guarantors: rental.guarantors?.map((guarantor) => guarantor.id) || [],
+          guarantors: rental.guarantors?.map((guarantor: { id: string }) => guarantor.id) || [],
           ownerId: rental.ownerId,
           signedDate: rental.signedDate || new Date(),
           contractDurationYears: rental.contractDurationYears.toString(),
