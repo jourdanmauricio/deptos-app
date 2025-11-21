@@ -1,6 +1,6 @@
 'use server';
 
-import prisma from '@/lib/prisma';
+import prisma from '@/lib/prisma.server';
 import { revalidatePath } from 'next/cache';
 import { Party } from '@/shared/types/party';
 import { $Enums } from '@/lib/generated/prisma/client';

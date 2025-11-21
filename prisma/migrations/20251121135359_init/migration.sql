@@ -1,9 +1,64 @@
 -- CreateTable
+CREATE TABLE "User" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "email" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "role" TEXT NOT NULL DEFAULT 'ADMIN',
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "UserDetails" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT NOT NULL,
+    "phone" TEXT NOT NULL,
+    "address" TEXT NOT NULL,
+    "cbu" TEXT,
+    "alias" TEXT,
+    "bank" TEXT,
+    "bankAccountNumber" TEXT,
+    "avatar" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "UserDetails_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "Property" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "parcelId" TEXT NOT NULL,
+    "nisElektrik" TEXT NOT NULL,
+    "gas" TEXT NOT NULL,
+    "abl" TEXT NOT NULL,
+    "absa" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "address" TEXT NOT NULL,
+    "bedrooms" INTEGER NOT NULL,
+    "bathrooms" INTEGER NOT NULL,
+    "hasPool" BOOLEAN NOT NULL,
+    "hasGarage" BOOLEAN NOT NULL,
+    "hasGarden" BOOLEAN NOT NULL,
+    "hasKitchen" BOOLEAN NOT NULL,
+    "hasExpenses" BOOLEAN NOT NULL,
+    "squareMeters" INTEGER NOT NULL,
+    "owner" TEXT NOT NULL,
+    "refaccionYear" INTEGER NOT NULL,
+    "description" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+);
+
+-- CreateTable
 CREATE TABLE "Party" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "name" TEXT NOT NULL,
+    "lastName" TEXT NOT NULL,
     "type" TEXT NOT NULL,
     "dni" TEXT NOT NULL,
+    "cuil" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "description" TEXT NOT NULL,
@@ -32,7 +87,9 @@ CREATE TABLE "Payment" (
     "paymentMethod" TEXT NOT NULL DEFAULT 'CASH',
     "referenceNumber" TEXT,
     "receiptUrl" TEXT,
+    "imageUrl" TEXT,
     "notes" TEXT,
+    "periodMonth" INTEGER,
     "periodStart" DATETIME,
     "periodEnd" DATETIME,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -54,6 +111,7 @@ CREATE TABLE "Rental" (
     "initialRent" REAL NOT NULL,
     "rentUpdateMonths" INTEGER DEFAULT 3,
     "penaltyRate" REAL,
+    "rescissionRate" REAL,
     "currency" TEXT NOT NULL DEFAULT 'ARS',
     "indexationType" TEXT NOT NULL DEFAULT 'IPC',
     "status" TEXT NOT NULL DEFAULT 'ACTIVE',
@@ -62,9 +120,10 @@ CREATE TABLE "Rental" (
     "billing" BOOLEAN NOT NULL DEFAULT false,
     "observation" TEXT,
     "contractUrl" TEXT,
+    "contractContent" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
-    "wordTemplateId" TEXT,
+    "wordTemplateId" INTEGER,
     CONSTRAINT "Rental_propertyId_fkey" FOREIGN KEY ("propertyId") REFERENCES "Property" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "Rental_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Party" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "Rental_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "Party" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -73,9 +132,9 @@ CREATE TABLE "Rental" (
 
 -- CreateTable
 CREATE TABLE "WordTemplate" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "name" TEXT NOT NULL,
-    "tipo" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "content" TEXT NOT NULL,
     "variables" JSONB NOT NULL,
@@ -91,38 +150,11 @@ CREATE TABLE "_Guarantor" (
     CONSTRAINT "_Guarantor_B_fkey" FOREIGN KEY ("B") REFERENCES "Rental" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- RedefineTables
-PRAGMA defer_foreign_keys=ON;
-PRAGMA foreign_keys=OFF;
-CREATE TABLE "new_Property" (
-    "id" TEXT NOT NULL PRIMARY KEY,
-    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
-    "parcelId" TEXT NOT NULL,
-    "nisElektrik" TEXT NOT NULL,
-    "gas" TEXT NOT NULL,
-    "abl" TEXT NOT NULL,
-    "absa" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "address" TEXT NOT NULL,
-    "bedrooms" INTEGER NOT NULL,
-    "bathrooms" INTEGER NOT NULL,
-    "hasPool" BOOLEAN NOT NULL,
-    "hasGarage" BOOLEAN NOT NULL,
-    "hasGarden" BOOLEAN NOT NULL,
-    "hasKitchen" BOOLEAN NOT NULL,
-    "hasExpenses" BOOLEAN NOT NULL,
-    "squareMeters" INTEGER NOT NULL,
-    "owner" TEXT NOT NULL,
-    "refaccionYear" INTEGER NOT NULL,
-    "description" TEXT NOT NULL,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL
-);
-INSERT INTO "new_Property" ("abl", "absa", "address", "bathrooms", "bedrooms", "createdAt", "description", "gas", "hasExpenses", "hasGarage", "hasGarden", "hasKitchen", "hasPool", "id", "name", "nisElektrik", "owner", "parcelId", "refaccionYear", "squareMeters", "updatedAt") SELECT "abl", "absa", "address", "bathrooms", "bedrooms", "createdAt", "description", "gas", "hasExpenses", "hasGarage", "hasGarden", "hasKitchen", "hasPool", "id", "name", "nisElektrik", "owner", "parcelId", "refaccionYear", "squareMeters", "updatedAt" FROM "Property";
-DROP TABLE "Property";
-ALTER TABLE "new_Property" RENAME TO "Property";
-PRAGMA foreign_keys=ON;
-PRAGMA defer_foreign_keys=OFF;
+-- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "UserDetails_userId_key" ON "UserDetails"("userId");
 
 -- CreateIndex
 CREATE INDEX "Payment_rentalId_idx" ON "Payment"("rentalId");

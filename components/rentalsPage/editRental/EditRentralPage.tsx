@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FieldErrors, useForm } from 'react-hook-form';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { LoaderIcon, PlusIcon, TrashIcon } from 'lucide-react';
 
 import { Form } from '@/components/ui/form';
@@ -70,7 +70,7 @@ const defaultValues = {
 const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [contractModalIsOpen, setContractModalIsOpen] = useState(false);
-  // const [_, startTransition] = useTransition();
+  const [_, startTransition] = useTransition();
 
   const { data: rental, isLoading, isFetching, error } = useRental(rentalId);
 
@@ -95,32 +95,32 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
   useEffect(() => {
     if (rental && !isLoading && !isFetching) {
       // Usar startTransition para manejar la actualización del estado de forma segura
-      // startTransition(() => {
-      form.reset({
-        propertyId: rental.propertyId,
-        tenantId: rental.tenantId,
-        guarantors: rental.guarantors?.map((guarantor) => guarantor.id) || [],
-        ownerId: rental.ownerId,
-        signedDate: rental.signedDate || new Date(),
-        contractDurationYears: rental.contractDurationYears.toString(),
-        startDate: rental.startDate,
-        endDate: rental.endDate,
-        initialRent: rental.initialRent?.toString() || '',
-        rentUpdateMonths: rental.rentUpdateMonths?.toString() || '',
-        penaltyRate: rental.penaltyRate?.toString() || '',
-        rescissionRate: rental.rescissionRate?.toString() || '',
-        indexationType: rental.indexationType || 'IPC',
-        status: rental.status || 'ACTIVE',
-        deposit: rental.deposit?.toString() || '0',
-        paymentMethod: rental.paymentMethod || 'CASH',
-        billing: rental.billing || false,
-        contractUrl: rental.contractUrl || '',
-        observation: rental.observation || '',
-        currency: rental.currency || 'ARS',
-        wordTemplateId: rental.wordTemplateId?.toString() || '',
-        contractContent: rental.contractContent || '',
+      startTransition(() => {
+        form.reset({
+          propertyId: rental.propertyId,
+          tenantId: rental.tenantId,
+          guarantors: rental.guarantors?.map((guarantor) => guarantor.id) || [],
+          ownerId: rental.ownerId,
+          signedDate: rental.signedDate || new Date(),
+          contractDurationYears: rental.contractDurationYears.toString(),
+          startDate: rental.startDate,
+          endDate: rental.endDate,
+          initialRent: rental.initialRent?.toString() || '',
+          rentUpdateMonths: rental.rentUpdateMonths?.toString() || '',
+          penaltyRate: rental.penaltyRate?.toString() || '',
+          rescissionRate: rental.rescissionRate?.toString() || '',
+          indexationType: rental.indexationType || 'IPC',
+          status: rental.status || 'ACTIVE',
+          deposit: rental.deposit?.toString() || '0',
+          paymentMethod: rental.paymentMethod || 'CASH',
+          billing: rental.billing || false,
+          contractUrl: rental.contractUrl || '',
+          observation: rental.observation || '',
+          currency: rental.currency || 'ARS',
+          wordTemplateId: rental.wordTemplateId?.toString() || '',
+          contractContent: rental.contractContent || '',
+        });
       });
-      // });
     }
   }, [rental, isLoading, isFetching, form]);
 

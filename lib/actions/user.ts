@@ -1,7 +1,7 @@
 'use server';
 
 import bcrypt from 'bcryptjs';
-import prisma from '@/lib/prisma';
+import prisma from '@/lib/prisma.server';
 import { revalidatePath } from 'next/cache';
 import type { CreateUserInput, CreateUserDetailsInput, UpdateUserInput } from '@/shared/types/user';
 

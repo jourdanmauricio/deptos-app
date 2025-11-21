@@ -169,7 +169,6 @@ function CustomTable<TData, TValue>({
                 !hasError &&
                 hasData &&
                 table.getRowModel().rows.map((row) => {
-                  // console.log("row", row.original);
                   return (
                     <TableRow key={row.id} className='flex h-[48px] w-full items-center'>
                       {row.getVisibleCells().map((cell) => {

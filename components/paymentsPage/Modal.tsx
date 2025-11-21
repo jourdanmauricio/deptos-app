@@ -68,10 +68,7 @@ const Modal = ({ open, closeModal, payment }: ModalProps) => {
     defaultValues,
   });
 
-  console.log('payment', payment);
-
   useEffect(() => {
-    console.log('edit payment', payment);
     if (payment) {
       const newPayment = {
         propertyId: payment.rental?.propertyId || '',
@@ -132,7 +129,6 @@ const Modal = ({ open, closeModal, payment }: ModalProps) => {
         }
       }
 
-      console.log(values);
       const valuesToSubmit = {
         rentalId: values.rentalId,
         amount: parseFloat(values.amount),
