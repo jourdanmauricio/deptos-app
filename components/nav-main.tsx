@@ -22,6 +22,14 @@ export function NavMain({
   }[];
 }) {
   const pathname = usePathname();
+
+  // Encontrar la ruta más específica (más larga) que coincida
+  const matchedItem = items
+    .filter((item) => pathname === item.url || pathname.startsWith(`${item.url}/`))
+    .reduce((longest, current) => (longest.url.length > current.url.length ? longest : current), {
+      url: '',
+    });
+
   return (
     <SidebarGroup>
       <SidebarGroupContent className='flex flex-col gap-2'>
@@ -32,7 +40,7 @@ export function NavMain({
                 <Link
                   href={item.url}
                   className={`flex items-center gap-2 rounded-md p-2 ${
-                    pathname === item.url ? 'bg-primary/30 text-primary-foreground' : ''
+                    item.url === matchedItem.url ? 'bg-primary/30 text-primary-foreground' : ''
                   }`}
                 >
                   {item.icon && <item.icon />}

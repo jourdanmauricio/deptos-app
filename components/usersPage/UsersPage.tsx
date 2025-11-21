@@ -1,9 +1,10 @@
 'use client';
 
+import { useCallback, useMemo, useState } from 'react';
+
 import { CustomTable } from '@/components/ui/custom/CustomTable';
 import { useDeleteUser, useGetUsers } from '@/hooks/use-users';
 import { User } from '@/shared/types';
-import { useMemo, useState } from 'react';
 import { getColumns } from '@/components/usersPage/table/columns';
 import { Button } from '@/components/ui/button';
 import { UserPlus } from 'lucide-react';
@@ -18,15 +19,15 @@ const UsersPage = () => {
 
   const deleteUserMutation = useDeleteUser();
 
-  const onEdit = (user: User) => {
+  const onEdit = useCallback((user: User) => {
     setCurrentUser(user);
     setModalIsOpen(true);
-  };
+  }, []);
 
-  const onDelete = (user: User) => {
+  const onDelete = useCallback((user: User) => {
     setCurrentUser(user);
     setDeleteModalIsOpen(true);
-  };
+  }, []);
 
   const handleCreateUser = () => {
     setCurrentUser(null);

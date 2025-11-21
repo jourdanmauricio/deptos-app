@@ -1,3 +1,3 @@
-import { Party as PrismaParty } from '@/lib/generated/prisma';
+import { Party as PrismaParty } from '@/lib/generated/prisma/client';
 
 export type Party = PrismaParty;

@@ -9,6 +9,7 @@ import {
   IconReport,
   IconSettings,
   IconUsers,
+  IconCoins,
 } from '@tabler/icons-react';
 
 export const menuItems = {
@@ -42,6 +43,11 @@ export const menuItems = {
       title: 'Alquileres',
       url: '/dashboard/rentals',
       icon: IconListDetails,
+    },
+    {
+      title: 'Pagos',
+      url: '/dashboard/payments',
+      icon: IconCoins,
     },
   ],
   navSecondary: [
@@ -78,19 +84,6 @@ export const menuItems = {
       icon: IconReport,
     },
   ],
-};
-
-export const propertyStatus = {
-  ACTIVE: 'Activo',
-  INACTIVE: 'Inactivo',
-  RENTED: 'Alquilado',
-};
-
-export const rentalStatus = {
-  ACTIVE: 'Alquilado',
-  INACTIVE: 'Inactivo',
-  EXPIRED: 'Finalizado',
-  CANCELLED: 'Cancelado',
 };
 
 export const rentalVariables = [
@@ -196,8 +189,51 @@ export const rentalVariables = [
   },
 ];
 
+export const propertyStatus = {
+  ACTIVE: 'Activo',
+  INACTIVE: 'Inactivo',
+  RENTED: 'Alquilado',
+};
+
+export const rentalStatus = {
+  ACTIVE: 'Alquilado',
+  INACTIVE: 'Inactivo',
+  EXPIRED: 'Finalizado',
+  CANCELLED: 'Cancelado',
+};
+
 export const indexationTypes = [
   { id: 'IPC', description: 'INDICE DE PRECIOS AL CONSUMIDOR' },
   { id: 'ICL', description: 'INDICE PARA CONTRATOS DE LOCACION' },
   { id: 'FIXED', description: 'FIJO' },
+];
+
+export const paymentConcepts = [
+  { id: 'RENT', description: 'Alquiler' },
+  { id: 'EXPENSES', description: 'Expensas' },
+  { id: 'EXTRA_EXPENSES', description: 'Expensas extraordinarias' },
+  { id: 'DEPOSIT_GUARANTOR', description: 'Depósito de garantía' },
+  { id: 'OTHER', description: 'Otro' },
+];
+
+export const paymentConceptsConstants = {
+  RENT: 'Alquiler',
+  EXPENSES: 'Expensas',
+  EXTRA_EXPENSES: 'Expensas extraordinarias',
+  DEPOSIT_GUARANTOR: 'Depósito de garantía',
+  OTHER: 'Otro',
+};
+
+export const paymentStatus = {
+  PENDING: 'Pendiente',
+  PAID: 'Pagado',
+  LATE: 'Pagado con atraso',
+  CANCELLED: 'Cancelado',
+};
+
+export const paymentStatusList = [
+  { id: 'PENDING', description: 'Pendiente' },
+  { id: 'PAID', description: 'Pagado' },
+  { id: 'LATE', description: 'Pagado con atraso' },
+  { id: 'CANCELLED', description: 'Cancelado' },
 ];

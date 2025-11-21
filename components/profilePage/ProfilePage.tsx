@@ -1,8 +1,8 @@
 'use client';
-import { useGetUsers } from '@/hooks/use-users';
+// import { useGetUsers } from '@/hooks/use-users';
 
 const ProfilePage = () => {
-  const { data: users } = useGetUsers();
+  //const { data: users } = useGetUsers();
 
   return <div>ProfilePage</div>;
 };

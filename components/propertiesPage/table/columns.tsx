@@ -15,7 +15,9 @@ export const getColumns = ({ onEdit, onDelete }: DataTableColumnsProps): ColumnD
   {
     accessorKey: 'name',
     header: 'NOMBRE',
-    size: 250,
+    size: 0,
+    minSize: 280,
+    maxSize: 350,
     cell: ({ row }) => {
       const property = row.original;
       return <TruncatedCell value={property.name} linesMax={2} />;

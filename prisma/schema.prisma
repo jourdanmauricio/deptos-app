@@ -163,9 +163,11 @@ model Payment {
   paymentMethod   PaymentMethod @default(CASH)
   referenceNumber String? // Número de comprobante/transferencia
   receiptUrl      String? // URL del comprobante escaneado
+  imageUrl        String? // URL del comprobante escaneado
   notes           String? // Notas adicionales
 
   // Período que cubre
+  periodMonth Int? // Mes del período (ej: 3)
   periodStart DateTime? // Inicio del período (ej: 01/03/2024)
   periodEnd   DateTime? // Fin del período (ej: 31/03/2024)
 

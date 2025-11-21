@@ -21,6 +21,7 @@ type DatePickerFieldProps = {
   placeholder?: string;
   buttonClassName?: string;
   onChangeDatePickerField?: (e: any) => void;
+  disabled?: boolean;
 };
 
 const formatDate = (date: Date): string => {
@@ -41,6 +42,7 @@ export function InputDatePicker({
   placeholder = 'Seleccionar fecha',
   buttonClassName,
   onChangeDatePickerField,
+  disabled = false,
 }: DatePickerFieldProps) {
   const [open, setOpen] = React.useState(false);
 
@@ -77,6 +79,7 @@ export function InputDatePicker({
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
                 <Button
+                  disabled={disabled}
                   variant='outline'
                   className={cn(
                     'w-full justify-between font-normal',

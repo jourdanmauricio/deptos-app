@@ -1,4 +1,4 @@
-import { Rental as PrismaRental, Property, Party } from '@/lib/generated/prisma';
+import { Rental as PrismaRental, Property, Party } from '@/lib/generated/prisma/client';
 
 export type Rental = RentalWithProperty;
 

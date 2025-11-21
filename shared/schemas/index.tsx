@@ -1,4 +1,4 @@
-import { UserRole } from '@/lib/generated/prisma';
+// import { UserRole } from '@/lib/generated/prisma/client';
 import z from 'zod';
 
 export const loginFormSchema = z.object({
@@ -109,4 +109,31 @@ export const wordTemplateFormSchema = z.object({
   description: z.string().optional(),
   content: z.string().min(1, 'Requerido'),
   variables: z.array(z.string()).optional(),
+});
+
+export const paymentFormSchema = z.object({
+  propertyId: z.string().optional(),
+  tenantId: z.string().optional(),
+  rentalId: z.string().min(1, 'Requerido'),
+  amount: z.string().min(1, 'Requerido'),
+  penalty: z.string().optional(),
+  total: z.string().optional(),
+  concept: z.enum(['RENT', 'EXPENSES', 'EXTRA_EXPENSES', 'DEPOSIT_GUARANTOR', 'OTHER']),
+  paidDate: z.date(),
+  status: z.enum(['PENDING', 'PAID', 'LATE', 'CANCELLED']),
+  paymentMethod: z.enum([
+    'CASH',
+    'CHECK',
+    'TRANSFER',
+    'CREDIT_CARD',
+    'DEBIT_CARD',
+    'ONLINE',
+    'OTHER',
+  ]),
+  referenceNumber: z.string().optional(),
+  imageUrl: z.union([z.instanceof(File), z.string()]).optional(),
+  notes: z.string().optional(),
+  periodStart: z.date(),
+  periodEnd: z.date(),
+  periodMonth: z.string().min(1, 'Requerido'),
 });

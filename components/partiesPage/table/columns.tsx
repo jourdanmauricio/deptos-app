@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { EditIcon, Trash2Icon } from 'lucide-react';
 import { TruncatedCell } from '@/components/ui/custom/truncatedCell';
 import { Party } from '@/shared/types';
-import Image from 'next/image';
 
 type DataTableColumnsProps = {
   onEdit: (party: Party) => void;

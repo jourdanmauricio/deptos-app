@@ -182,8 +182,6 @@ const Modal = ({ open, closeModal, party }: ModalProps) => {
     console.log(errors);
   };
 
-  console.log('form', form.getValues());
-
   return (
     <Dialog open={open} onOpenChange={closeModal}>
       <DialogContent

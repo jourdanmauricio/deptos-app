@@ -4,7 +4,7 @@ import type { UseFormReturn } from 'react-hook-form';
 import Dropdown from '@/components/ui/custom/dropdown';
 import DropdownLoadSkeleton from '@/components/ui/skeletons/dropdownLoadSkeleton';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import type { UserRole } from '@/lib/generated/prisma';
+import type { UserRole } from '@/lib/generated/prisma/client';
 
 type DropdownProps = {
   name: string;

@@ -1,13 +1,14 @@
 'use client';
 
 import { PlusIcon } from 'lucide-react';
-import { InputFieldSeach } from '../ui/custom/input-field-seach';
+import { useCallback, useMemo, useState } from 'react';
+import { FilterFn, OnChangeFn, Row, type SortingState } from '@tanstack/react-table';
+
 import { Button } from '../ui/button';
-import { useMemo, useState } from 'react';
+import { InputFieldSeach } from '../ui/custom/input-field-seach';
 import { CustomTable } from '../ui/custom/CustomTable';
 import { useWordTemplates, useDeleteWordTemplate } from '@/hooks/use-word-templates';
 import { WordTemplate } from '@/shared/types/word-template';
-import { FilterFn, Row, SortingState } from '@tanstack/react-table';
 import { getColumns } from '@/components/wordAssistantPage/table/columns';
 import { Modal } from '@/components/wordAssistantPage/Modal';
 import CustomAlertDialog from '@/components/ui/custom/custom-alert-dialog';
@@ -26,15 +27,15 @@ const WordAssistantPage = () => {
   const { data: wordTemplates, isLoading, error } = useWordTemplates();
   const deleteWordTemplateMutation = useDeleteWordTemplate();
 
-  const onEdit = (template: WordTemplate) => {
+  const onEdit = useCallback((template: WordTemplate) => {
     setCurrentRow(template);
     setModalIsOpen(true);
-  };
+  }, []);
 
-  const onDelete = (template: WordTemplate) => {
+  const onDelete = useCallback((template: WordTemplate) => {
     setCurrentRow(template);
     setDeleteModalIsOpen(true);
-  };
+  }, []);
 
   const columns = useMemo(
     () =>
@@ -45,7 +46,7 @@ const WordAssistantPage = () => {
     [onEdit, onDelete]
   );
 
-  const handleSorting = (sorting: SortingState) => {
+  const handleSorting: OnChangeFn<SortingState> = (sorting) => {
     setSorting(sorting);
     setPageIndex(0);
   };

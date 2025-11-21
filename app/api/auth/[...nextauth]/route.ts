@@ -9,7 +9,7 @@ declare module 'next-auth' {
       id: string;
       email: string;
       name: string;
-      avatar: string; // Agregar esta línea
+      avatar: string;
     };
   }
 
@@ -26,7 +26,7 @@ const handler = NextAuth({
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
       },
-      async authorize(credentials, req) {
+      async authorize(credentials) {
         const { email, password } = credentials || {};
 
         if (!email || !password) {
@@ -69,7 +69,7 @@ const handler = NextAuth({
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session }) {
       if (session.user?.email) {
         // Obtener datos actualizados del usuario desde la base de datos
         const userDB = await prisma.user.findUnique({

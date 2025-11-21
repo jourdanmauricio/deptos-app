@@ -19,7 +19,7 @@ import BooleanCheckbox from '@/components/ui/custom/boolean-checkbox';
 import InputNumberField from '@/components/ui/custom/input-number-field';
 import { propertyFormSchema } from '@/shared/schemas';
 import { Property } from '@/shared/types';
-import { PropertyStatus } from '@/lib/generated/prisma';
+import { PropertyStatus } from '@/lib/generated/prisma/client';
 import { useCreateProperty, useUpdateProperty } from '@/hooks/use-properties';
 import { TypePropertyStatusDropdown } from '@/components/ui/dropdowns/TypePropertyStatusDropdown';
 
@@ -76,7 +76,6 @@ const Modal = ({ open, closeModal, property }: ModalProps) => {
   }, [property, form]);
 
   const onSubmit = async (values: z.infer<typeof propertyFormSchema>) => {
-    console.log(values);
     const valuesToSubmit = {
       ...values,
       bedrooms: parseInt(values.bedrooms),

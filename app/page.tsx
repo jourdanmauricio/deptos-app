@@ -1,8 +1,3 @@
-import Link from 'next/link';
-
-import { Layout } from 'lucide-react';
-
-import { Button } from '@/components/ui/button';
 import { LoginPage } from '@/components/loginPage/LoginPage';
 
 export default function Home() {

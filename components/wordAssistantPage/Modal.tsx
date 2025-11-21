@@ -160,7 +160,7 @@ const Modal = ({ open, closeModal, template }: ModalProps) => {
         await createWordTemplateMutation.mutateAsync(data);
       } else {
         await updateWordTemplateMutation.mutateAsync({
-          id: template?.id || '',
+          id: String(template?.id || ''),
           data,
         });
       }

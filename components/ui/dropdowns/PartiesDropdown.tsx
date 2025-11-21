@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { UseFormReturn } from 'react-hook-form';
 
 import { getParties } from '@/lib/actions/parties';
-import { PartyType } from '@/lib/generated/prisma';
+import { PartyType } from '@/lib/generated/prisma/client';
 import Dropdown from '@/components/ui/custom/dropdown';
 import DropdownLoadSkeleton from '@/components/ui/skeletons/dropdownLoadSkeleton';
 

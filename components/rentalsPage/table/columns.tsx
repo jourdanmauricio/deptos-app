@@ -1,6 +1,6 @@
 import { type ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { EditIcon, FileTextIcon, Trash2Icon } from 'lucide-react';
+import { CoinsIcon, EditIcon, FileTextIcon, Trash2Icon } from 'lucide-react';
 import { TruncatedCell } from '@/components/ui/custom/truncatedCell';
 import { Rental } from '@/shared/types';
 import { rentalStatus as rentalStatusConstants } from '@/shared/constanst';
@@ -9,18 +9,20 @@ type DataTableColumnsProps = {
   onEdit: (rental: Rental) => void;
   onDelete: (rental: Rental) => void;
   onDownloadContract: (rental: Rental) => void;
+  onPayRental: (rental: Rental) => void;
 };
 
 export const getColumns = ({
   onEdit,
   onDelete,
   onDownloadContract,
+  onPayRental,
 }: DataTableColumnsProps): ColumnDef<Rental>[] => [
   {
     id: 'property',
     header: 'PROPIEDAD',
     size: 0,
-    minSize: 200,
+    minSize: 300,
     maxSize: 350,
     cell: ({ row }) => {
       const rental = row.original;
@@ -33,7 +35,12 @@ export const getColumns = ({
     size: 200,
     cell: ({ row }) => {
       const rental = row.original;
-      return <TruncatedCell value={rental.tenant.name || ''} linesMax={2} />;
+      return (
+        <TruncatedCell
+          value={`${rental.tenant.lastName}, ${rental.tenant.name}` || ''}
+          linesMax={2}
+        />
+      );
     },
   },
   {
@@ -58,33 +65,23 @@ export const getColumns = ({
         year: 'numeric',
       }),
   },
-  // {
-  //   accessorKey: "owner",
-  //   header: "PROPIETARIO",
-  //   size: 200,
-  //   cell: ({ row }) => {
-  //     const property = row.original;
-  //     return <TruncatedCell value={property.owner} linesMax={2} />;
-  //   },
-  // },
-  // {
-  //   accessorKey: "description",
-  //   header: "DESCRIPCIÓN",
-  //   size: 0,
-  //   minSize: 200,
-  //   cell: ({ row }) => {
-  //     const property = row.original;
-  //     return <TruncatedCell value={property.description} linesMax={2} />;
-  //   },
-  // },
+
   {
     id: 'actions',
     header: 'ACCIONES',
-    size: 150,
+    size: 180,
     cell: ({ row }) => {
       const rental = row.original;
       return (
         <div className='flex items-center gap-2'>
+          <Button
+            variant='ghost'
+            size='sm'
+            onClick={() => onPayRental(rental)}
+            className='h-8 w-8 p-0 hover:bg-yellow-50'
+          >
+            <CoinsIcon className='h-4 w-4 text-yellow-600' />
+          </Button>
           <Button
             variant='ghost'
             size='sm'

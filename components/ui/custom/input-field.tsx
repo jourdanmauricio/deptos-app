@@ -1,9 +1,10 @@
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { X } from 'lucide-react';
 import { type InputHTMLAttributes } from 'react';
 import { useFormContext, UseFormReturn } from 'react-hook-form';
+
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 
 type BaseInputFieldProps = {
   label: string;
@@ -40,16 +41,11 @@ const InputField = ({
       control={form.control}
       name={name}
       render={({ field }) => (
-        <FormItem className={className}>
+        <FormItem className={cn('relative', className)}>
           <FormLabel className={`text-sm font-normal ${labelClassName}`}>{label}</FormLabel>
           {enableClean && field.value && (
-            <div className='relative w-full'>
-              <div
-                className='absolute top-5 right-3 -translate-y-1/2 transform cursor-pointer'
-                onClick={() => field.onChange('')}
-              >
-                <X className='h-4 w-4 text-neutral-500' />
-              </div>
+            <div className='absolute -top-2 right-3 -translate-y-1/2 transform cursor-pointer'>
+              <X className='h-4 w-4 text-neutral-500' onClick={() => field.onChange('')} />
             </div>
           )}
           <FormControl>

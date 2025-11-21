@@ -2,7 +2,7 @@
 
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
-import { WordTemplate } from '@/lib/generated/prisma';
+import { WordTemplate } from '@/lib/generated/prisma/client';
 import { InputJsonValue, JsonValue } from '@/lib/generated/prisma/runtime/library';
 
 export async function getWordTemplates() {

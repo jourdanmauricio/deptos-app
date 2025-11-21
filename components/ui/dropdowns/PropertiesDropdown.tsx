@@ -1,10 +1,11 @@
 import type { UseFormReturn } from 'react-hook-form';
-
 import { useQuery } from '@tanstack/react-query';
+
 import Dropdown from '@/components/ui/custom/dropdown';
+import { PropertyStatus } from '@/lib/generated/prisma/client';
 import { getProperties } from '@/lib/actions/properties';
 import DropdownLoadSkeleton from '@/components/ui/skeletons/dropdownLoadSkeleton';
-import { PropertyStatus } from '@/lib/generated/prisma';
+import { cn } from '@/lib/utils';
 
 type DropdownProps = {
   name: string;
@@ -15,6 +16,9 @@ type DropdownProps = {
   onChange?: (item: { id: string; description: string; status: PropertyStatus }) => void;
   label?: string;
   placeholder?: string;
+  filterStatus?: boolean;
+  selectValue?: 'FIRST' | 'LAST' | undefined;
+  disabled?: boolean;
 };
 
 const PropertiesDropdown = ({
@@ -26,6 +30,9 @@ const PropertiesDropdown = ({
   onChange,
   label,
   placeholder,
+  filterStatus = true,
+  selectValue,
+  disabled = false,
 }: DropdownProps) => {
   const labelName = label ?? 'Propiedad' + (required ? '*' : '');
 
@@ -37,13 +44,13 @@ const PropertiesDropdown = ({
         id: property.id,
         description: property.name,
         status: property.status as PropertyStatus,
-        disabled: property.status !== 'ACTIVE',
+        disabled: filterStatus && property.status !== 'ACTIVE',
       })),
     staleTime: 1000 * 60 * 5, // 5 minutos
   });
 
   if (isLoading) {
-    return <DropdownLoadSkeleton label={labelName} />;
+    return <DropdownLoadSkeleton label={labelName} className={cn('space-y-0', className)} />;
   }
 
   return (
@@ -56,6 +63,8 @@ const PropertiesDropdown = ({
       className={className}
       labelClassName={labelClassName}
       onChange={onChange}
+      selectValue={selectValue}
+      disabled={disabled}
     />
   );
 };

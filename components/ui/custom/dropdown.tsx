@@ -1,6 +1,7 @@
+import { useMemo } from 'react';
 import { cn } from '@/lib/utils';
-import { XCircle } from 'lucide-react';
-import { useEffect } from 'react';
+import { X } from 'lucide-react';
+import { useFormContext, type UseFormReturn } from 'react-hook-form';
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import {
@@ -10,8 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-
-import { useFormContext, type UseFormReturn } from 'react-hook-form';
 
 type DropdownItem = {
   id: string;
@@ -31,6 +30,7 @@ type DropdownProps<T extends DropdownItem = DropdownItem> = {
   disabled?: boolean;
   labelClassName?: string;
   enableClean?: boolean;
+  selectValue?: 'FIRST' | 'LAST' | undefined;
 };
 
 export default function Dropdown<T extends DropdownItem = DropdownItem>({
@@ -44,6 +44,7 @@ export default function Dropdown<T extends DropdownItem = DropdownItem>({
   disabled = false,
   labelClassName,
   enableClean,
+  selectValue,
 }: DropdownProps<T>) {
   const { getFieldState, formState } = useFormContext();
   const fieldState = getFieldState(name, formState);
@@ -57,22 +58,27 @@ export default function Dropdown<T extends DropdownItem = DropdownItem>({
     }
   };
 
+  const selectedItem = useMemo(() => {
+    if (selectValue === 'FIRST') {
+      return list[0];
+    }
+    if (selectValue === 'LAST') {
+      return list[list.length - 1];
+    }
+    return undefined;
+  }, [list, selectValue]);
+
   return (
     <FormField
       control={form.control}
       name={name}
       render={({ field }) => {
         return (
-          <FormItem className={className}>
+          <FormItem className={cn('relative', className)}>
             <FormLabel className={`font-normal ${labelClassName}`}>{label}</FormLabel>
             {enableClean && field.value && (
-              <div className='relative w-full'>
-                <div
-                  className='absolute -top-2 right-1 -translate-y-1/2 transform cursor-pointer'
-                  onClick={() => field.onChange('')}
-                >
-                  <XCircle className='h-4 w-4 text-red-500' />
-                </div>
+              <div className='absolute -top-2 right-3 -translate-y-1/2 transform cursor-pointer'>
+                <X className='h-4 w-4 text-neutral-500' onClick={() => field.onChange('')} />
               </div>
             )}
             <Select
@@ -81,7 +87,7 @@ export default function Dropdown<T extends DropdownItem = DropdownItem>({
                 form.trigger(name);
                 handleOnChange(value);
               }}
-              value={field.value}
+              value={selectedItem?.id.toString() || field.value}
               name={name}
               disabled={disabled}
             >

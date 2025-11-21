@@ -1,6 +1,5 @@
-import { ArrowDown, ArrowUp, LoaderIcon } from 'lucide-react';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { useEffect } from 'react';
+import { ArrowDown, ArrowUp, LoaderIcon } from 'lucide-react';
 
 import {
   type ColumnDef,
@@ -13,6 +12,8 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   type Table as TableType,
+  RowSelectionState,
+  type OnChangeFn,
 } from '@tanstack/react-table';
 import {
   Table,
@@ -22,6 +23,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { PaginationClient } from '@/components/ui/custom/paginator-client';
 
 type Props<TData, TValue> = {
@@ -33,10 +35,10 @@ type Props<TData, TValue> = {
   sorting: SortingState;
   pageIndex: number;
   globalFilterFn: FilterFn<TData>;
-  rowSelection?: any;
-  handleSorting: (value: any) => void;
+  rowSelection?: RowSelectionState;
+  handleSorting: OnChangeFn<SortingState>;
   setPageIndex: (value: number) => void;
-  setRowSelection?: (value: any) => void;
+  setRowSelection?: OnChangeFn<RowSelectionState>;
   getRowId?: (row: TData) => string;
   onTableInstanceReady?: (table: TableType<TData>) => void;
 };

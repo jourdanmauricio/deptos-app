@@ -1,21 +1,18 @@
 'use client';
 
-import { FilterFn, Row, SortingState } from '@tanstack/react-table';
-import { useMemo, useState } from 'react';
+import { FilterFn, OnChangeFn, Row, type SortingState } from '@tanstack/react-table';
+import { useCallback, useMemo, useState } from 'react';
 import { PlusIcon } from 'lucide-react';
-import HTMLtoDOCX from 'html-to-docx';
-import { saveAs } from 'file-saver';
-import * as htmlDocx from 'html-docx-js';
 
+import { toast } from 'sonner';
 import { Rental } from '@/shared/types';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { CustomTable } from '@/components/ui/custom/CustomTable';
+import { useDeleteRental, useRentals } from '@/hooks/use-rentals';
 import { getColumns } from '@/components/rentalsPage/table/columns';
 import CustomAlertDialog from '@/components/ui/custom/custom-alert-dialog';
 import { InputFieldSeach } from '@/components/ui/custom/input-field-seach';
-import { useDeleteRental, useRentals } from '@/hooks/use-rentals';
-import { toast } from 'sonner';
 
 const RentalsPage = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -32,18 +29,19 @@ const RentalsPage = () => {
   const { data: rentals, isLoading, error } = useRentals();
   const deleteRentalMutation = useDeleteRental();
 
-  const onEdit = (rental: Rental) => {
-    router.push(`/dashboard/rentals/${rental.id}`);
-  };
+  const onEdit = useCallback(
+    (rental: Rental) => {
+      router.push(`/dashboard/rentals/${rental.id}`);
+    },
+    [router]
+  );
 
-  console.log('rentals', rentals);
-
-  const onDelete = (rental: Rental) => {
+  const onDelete = useCallback((rental: Rental) => {
     setCurrentRow(rental);
     setDeleteModalIsOpen(true);
-  };
+  }, []);
 
-  const onDownloadContract = async (rental: Rental) => {
+  const onDownloadContract = useCallback(async (rental: Rental) => {
     const content = rental.contractContent || '';
     const fileName = `contrato_${rental.tenantId}_${Date.now()}.docx`;
 
@@ -79,7 +77,14 @@ const RentalsPage = () => {
       // Aquí podrías mostrar un toast de error
       toast.error('Error al descargar el contrato');
     }
-  };
+  }, []);
+
+  const onPayRental = useCallback(
+    (rental: Rental) => {
+      router.push(`/dashboard/payments/${rental.propertyId}`);
+    },
+    [router]
+  );
 
   const columns = useMemo(
     () =>
@@ -87,31 +92,32 @@ const RentalsPage = () => {
         onEdit,
         onDelete,
         onDownloadContract,
+        onPayRental,
       }),
-    [onEdit, onDelete]
+    [onEdit, onDelete, onPayRental, onDownloadContract]
   );
 
-  const handleSorting = (sorting: SortingState) => {
+  const handleSorting: OnChangeFn<SortingState> = (sorting) => {
     setSorting(sorting);
     setPageIndex(0);
   };
 
   const globalFilterFn: FilterFn<Rental> = (
     row: Row<Rental>,
-    columnId: string,
+    _columnId: string,
     filterValue: { search: string }
   ) => {
     const rental = row.original;
     const search = filterValue.search.toLowerCase();
     return rental.property.name.toLowerCase().includes(search);
-    // rental.address.toLowerCase().includes(search) ||
-    // rental.owner.toLowerCase().includes(search) ||
-    // rental.description.toLowerCase().includes(search)
   };
 
   const handleDialogConfirmation = async () => {
     if (currentRow) {
-      await deleteRentalMutation.mutateAsync(currentRow.id);
+      await deleteRentalMutation.mutateAsync({
+        id: currentRow.id,
+        propertyId: currentRow.propertyId,
+      });
       setCurrentRow(null);
       setDeleteModalIsOpen(false);
     }

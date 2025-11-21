@@ -1,11 +1,9 @@
-import { useParams } from 'next/navigation';
 import { EditRentalPage } from '@/components/rentalsPage/editRental/EditRentralPage';
-import { getServerSideProps } from 'next/dist/build/templates/pages';
 
 type PageProps = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
 export default async function Page({ params }: PageProps) {

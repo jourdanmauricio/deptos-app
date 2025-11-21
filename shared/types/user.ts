@@ -1,4 +1,4 @@
-import { User as PrismaUser, UserDetails as PrismaUserDetails } from '@/lib/generated/prisma';
+import { User as PrismaUser, UserDetails as PrismaUserDetails } from '@/lib/generated/prisma/client';
 
 // Tipos base de Prisma
 export type User = PrismaUser & {

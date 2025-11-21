@@ -22,17 +22,14 @@ export function useRental(rentalId: string) {
     enabled: !!rentalId,
   });
 }
-export function useCreateRental(onSuccessCallback?: () => void) {
+export function useCreateRental() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: createRental,
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['rentals'] });
+      await queryClient.invalidateQueries({ queryKey: ['properties'] });
       toast.success('Alquiler creado correctamente');
-      // Ejecutar callback si existe (por ejemplo, para navegación)
-      if (onSuccessCallback) {
-        onSuccessCallback();
-      }
     },
     onError: (error: Error) => {
       toast.error(error.message);
@@ -67,9 +64,11 @@ export function useDeleteRental() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: deleteRental,
+    mutationFn: ({ id, propertyId }: { id: string; propertyId: string }) =>
+      deleteRental(id, propertyId),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['rentals'] });
+      await queryClient.invalidateQueries({ queryKey: ['properties'] });
       toast.success('Alquiler eliminado correctamente');
     },
     onError: (error: Error) => {

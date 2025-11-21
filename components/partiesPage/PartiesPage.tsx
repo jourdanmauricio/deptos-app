@@ -1,8 +1,14 @@
 'use client';
 
-import { FilterFn, Row, SortingState, Table as TableType } from '@tanstack/react-table';
+import {
+  FilterFn,
+  OnChangeFn,
+  Row,
+  type SortingState,
+  Table as TableType,
+} from '@tanstack/react-table';
 import * as XLSX from 'xlsx';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { DownloadIcon, Plus } from 'lucide-react';
 
 import { Party } from '@/shared/types';
@@ -29,15 +35,15 @@ const PartiesPage = () => {
   const { data: parties, isLoading, error } = useParties();
   const deletePartyMutation = useDeleteParty();
 
-  const onEdit = (party: Party) => {
+  const onEdit = useCallback((party: Party) => {
     setCurrentRow(party);
     setModalIsOpen(true);
-  };
+  }, []);
 
-  const onDelete = (party: Party) => {
+  const onDelete = useCallback((party: Party) => {
     setCurrentRow(party);
     setDeleteModalIsOpen(true);
-  };
+  }, []);
 
   const columns = useMemo(
     () =>
@@ -48,7 +54,7 @@ const PartiesPage = () => {
     [onEdit, onDelete]
   );
 
-  const handleSorting = (sorting: SortingState) => {
+  const handleSorting: OnChangeFn<SortingState> = (sorting) => {
     setSorting(sorting);
     setPageIndex(0);
   };

@@ -3,7 +3,7 @@
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { Party } from '@/shared/types/party';
-import { $Enums } from '@/lib/generated/prisma';
+import { $Enums } from '@/lib/generated/prisma/client';
 
 export async function getParties() {
   try {
@@ -16,6 +16,29 @@ export async function getParties() {
   } catch (error) {
     console.error('Error fetching parties:', error);
     throw new Error('Error al obtener los terceros');
+  }
+}
+
+export async function getTenants() {
+  try {
+    // Tenants con rentals y nombre de la propiedad
+    const tenants = await prisma.party.findMany({
+      where: { type: 'TENANT' },
+      include: {
+        tenantRentals: {
+          include: {
+            property: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+    return tenants;
+  } catch (error) {
+    console.error('Error fetching tenants:', error);
+    throw new Error('Error al obtener los inquilinos');
   }
 }
 

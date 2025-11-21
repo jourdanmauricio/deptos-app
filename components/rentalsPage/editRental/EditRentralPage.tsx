@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FieldErrors, useForm } from 'react-hook-form';
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect, useState } from 'react';
 import { LoaderIcon, PlusIcon, TrashIcon } from 'lucide-react';
 
 import { Form } from '@/components/ui/form';
@@ -22,7 +22,7 @@ import { InputDatePicker } from '@/components/ui/custom/input-date-picker';
 import { PartiesDropdown } from '@/components/ui/dropdowns/PartiesDropdown';
 import { useCreateRental, useUpdateRental, useRental } from '@/hooks/use-rentals';
 import { PropertiesDropdown } from '@/components/ui/dropdowns/PropertiesDropdown';
-import { IndexationType, PaymentMethod, RentalStatus } from '@/lib/generated/prisma';
+import { IndexationType, PaymentMethod, RentalStatus } from '@/lib/generated/prisma/client';
 import { RentalStatusDropdown } from '@/components/ui/dropdowns/RentalStatusDropdown';
 import { WordTemplatesDropdown } from '@/components/ui/dropdowns/WordTemplatesDropdown';
 import { TypeIndexationDropdown } from '@/components/ui/dropdowns/TypeIndexationDropdown';
@@ -70,7 +70,7 @@ const defaultValues = {
 const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [contractModalIsOpen, setContractModalIsOpen] = useState(false);
-  const [_, startTransition] = useTransition();
+  // const [_, startTransition] = useTransition();
 
   const { data: rental, isLoading, isFetching, error } = useRental(rentalId);
 
@@ -95,32 +95,32 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
   useEffect(() => {
     if (rental && !isLoading && !isFetching) {
       // Usar startTransition para manejar la actualización del estado de forma segura
-      startTransition(() => {
-        form.reset({
-          propertyId: rental.propertyId,
-          tenantId: rental.tenantId,
-          guarantors: rental.guarantors?.map((guarantor) => guarantor.id) || [],
-          ownerId: rental.ownerId,
-          signedDate: rental.signedDate || new Date(),
-          contractDurationYears: rental.contractDurationYears.toString(),
-          startDate: rental.startDate,
-          endDate: rental.endDate,
-          initialRent: rental.initialRent?.toString() || '',
-          rentUpdateMonths: rental.rentUpdateMonths?.toString() || '',
-          penaltyRate: rental.penaltyRate?.toString() || '',
-          rescissionRate: rental.rescissionRate?.toString() || '',
-          indexationType: rental.indexationType || 'IPC',
-          status: rental.status || 'ACTIVE',
-          deposit: rental.deposit?.toString() || '0',
-          paymentMethod: rental.paymentMethod || 'CASH',
-          billing: rental.billing || false,
-          contractUrl: rental.contractUrl || '',
-          observation: rental.observation || '',
-          currency: rental.currency || 'ARS',
-          wordTemplateId: rental.wordTemplateId?.toString() || '',
-          contractContent: rental.contractContent || '',
-        });
+      // startTransition(() => {
+      form.reset({
+        propertyId: rental.propertyId,
+        tenantId: rental.tenantId,
+        guarantors: rental.guarantors?.map((guarantor) => guarantor.id) || [],
+        ownerId: rental.ownerId,
+        signedDate: rental.signedDate || new Date(),
+        contractDurationYears: rental.contractDurationYears.toString(),
+        startDate: rental.startDate,
+        endDate: rental.endDate,
+        initialRent: rental.initialRent?.toString() || '',
+        rentUpdateMonths: rental.rentUpdateMonths?.toString() || '',
+        penaltyRate: rental.penaltyRate?.toString() || '',
+        rescissionRate: rental.rescissionRate?.toString() || '',
+        indexationType: rental.indexationType || 'IPC',
+        status: rental.status || 'ACTIVE',
+        deposit: rental.deposit?.toString() || '0',
+        paymentMethod: rental.paymentMethod || 'CASH',
+        billing: rental.billing || false,
+        contractUrl: rental.contractUrl || '',
+        observation: rental.observation || '',
+        currency: rental.currency || 'ARS',
+        wordTemplateId: rental.wordTemplateId?.toString() || '',
+        contractContent: rental.contractContent || '',
       });
+      // });
     }
   }, [rental, isLoading, isFetching, form]);
 
@@ -167,10 +167,12 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
         createRentalMutation.mutate(valuesToSubmit);
         router.push('/dashboard/rentals');
       } else {
-        updateRentalMutation.mutate({
-          id: rental?.id!,
-          data: valuesToSubmit,
-        });
+        if (rental?.id) {
+          updateRentalMutation.mutate({
+            id: rental.id,
+            data: valuesToSubmit,
+          });
+        }
         router.push('/dashboard/rentals');
       }
     } catch (error) {
@@ -232,9 +234,6 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
                 name='propertyId'
                 form={form}
                 className='w-full'
-                onChange={(e) => {
-                  console.log('e', e);
-                }}
               />
 
               <InputDatePicker
@@ -406,7 +405,7 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
                   className='w-full'
                   placeholder='Precio inicial'
                   regExp={/^(0|(0,\d{0,2})|([1-9]\d{0,8})(,\d{0,2})?)?$/}
-                  onChangeInputNumberField={(e) => {
+                  onChangeInputNumberField={() => {
                     form.clearErrors('initialRent');
                   }}
                 />

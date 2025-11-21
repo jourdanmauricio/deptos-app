@@ -1,5 +1,6 @@
 import { FormLabel } from '@/components/ui/form';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 
 type DropdownLoadSkeletonProps = {
   className?: string;
@@ -15,7 +16,7 @@ export default function DropdownLoadSkeleton({
   disabled = false,
 }: DropdownLoadSkeletonProps) {
   return (
-    <div className={`space-y-2 ${className}`}>
+    <div className={cn('space-y-2', className)}>
       <FormLabel className={`text-[1rem] font-semibold ${labelClassName}`}>{label}</FormLabel>
       <Skeleton
         className={`h-10 w-full border border-gray-200 ${

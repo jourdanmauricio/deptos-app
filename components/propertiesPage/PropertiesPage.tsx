@@ -1,8 +1,14 @@
 'use client';
 
-import { FilterFn, Row, SortingState, Table as TableType } from '@tanstack/react-table';
+import {
+  FilterFn,
+  OnChangeFn,
+  Row,
+  type SortingState,
+  Table as TableType,
+} from '@tanstack/react-table';
 import * as XLSX from 'xlsx';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { DownloadIcon, Plus } from 'lucide-react';
 
 import { Property } from '@/shared/types';
@@ -29,15 +35,15 @@ const PropertiesPage = () => {
   const { data: properties, isLoading, error } = useProperties();
   const deletePropertyMutation = useDeleteProperty();
 
-  const onEdit = (property: Property) => {
+  const onEdit = useCallback((property: Property) => {
     setCurrentRow(property);
     setModalIsOpen(true);
-  };
+  }, []);
 
-  const onDelete = (property: Property) => {
+  const onDelete = useCallback((property: Property) => {
     setCurrentRow(property);
     setDeleteModalIsOpen(true);
-  };
+  }, []);
 
   const columns = useMemo(
     () =>
@@ -48,14 +54,14 @@ const PropertiesPage = () => {
     [onEdit, onDelete]
   );
 
-  const handleSorting = (sorting: SortingState) => {
+  const handleSorting: OnChangeFn<SortingState> = (sorting) => {
     setSorting(sorting);
     setPageIndex(0);
   };
 
   const globalFilterFn: FilterFn<Property> = (
     row: Row<Property>,
-    columnId: string,
+    _columnId: string,
     filterValue: { search: string }
   ) => {
     const property = row.original;
