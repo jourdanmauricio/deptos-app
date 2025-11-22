@@ -88,30 +88,37 @@ enum PartyType {
   OWNER
 }
 
+enum PartyStatus {
+  ACTIVE
+  INACTIVE
+}
+
 model Party {
-  id               String    @id @default(uuid())
+  id               String      @id @default(uuid())
   name             String
   lastName         String
   type             PartyType
   dni              String
   cuil             String
   phone            String
+  status           PartyStatus @default(ACTIVE)
   email            String
   description      String
   address          String
   job              String
   documentFront    String?
   documentBack     String?
+  payslip          String?
   bank             String?
   accountNumber    String?
   cbu              String?
   alias            String?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
   // Relaciones inversas con Rental
-  tenantRentals    Rental[]  @relation("Tenant")
-  guarantorRentals Rental[]  @relation("Guarantor")
-  ownerRentals     Rental[]  @relation("Owner")
+  tenantRentals    Rental[]    @relation("Tenant")
+  guarantorRentals Rental[]    @relation("Guarantor")
+  ownerRentals     Rental[]    @relation("Owner")
 }
 
 enum RentalStatus {

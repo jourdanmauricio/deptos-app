@@ -14,11 +14,11 @@ import { DownloadIcon, Plus } from 'lucide-react';
 import { Party } from '@/shared/types';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/partiesPage/Modal';
+import { useDeleteParty, useParties } from '@/hooks/use-parties';
 import { CustomTable } from '@/components/ui/custom/CustomTable';
 import { getColumns } from '@/components/partiesPage/table/columns';
 import CustomAlertDialog from '@/components/ui/custom/custom-alert-dialog';
-import { InputFieldSeach } from '@/components/ui/custom/input-field-seach';
-import { useDeleteParty, useParties } from '@/hooks/use-parties';
+import { FilterParties } from '@/components/partiesPage/table/FilterParties';
 
 const PartiesPage = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -28,7 +28,8 @@ const PartiesPage = () => {
   const [currentRow, setCurrentRow] = useState<Party | null>(null);
   const [globalFilter, setGlobalFilter] = useState<{
     search: string;
-  }>({ search: '' });
+    status: string;
+  }>({ search: '', status: '' });
   const [rowSelection, setRowSelection] = useState<{ [key: string]: boolean }>({});
   const [tableInstance, setTableInstance] = useState<TableType<Party> | null>(null);
 
@@ -65,15 +66,27 @@ const PartiesPage = () => {
     filterValue: { search: string }
   ) => {
     const party = row.original;
-    const search = filterValue.search.toLowerCase();
-    return (
-      party.name.toLowerCase().includes(search) ||
-      party.lastName.toLowerCase().includes(search) ||
-      party.email.toLowerCase().includes(search) ||
-      party.phone.toLowerCase().includes(search) ||
-      party.dni.toLowerCase().includes(search) ||
-      party.description.toLowerCase().includes(search)
-    );
+    if (Object.keys(globalFilter).length === 0) return true;
+
+    // Evaluar todas las condiciones y que todas se cumplan
+    let matchesSearch = true;
+    let matchesStatus = true;
+
+    if (globalFilter.status && globalFilter.status !== '') {
+      matchesStatus = globalFilter.status.toLowerCase() === party.status.toLowerCase();
+    }
+
+    if (globalFilter.search && globalFilter.search !== '') {
+      const searchTerm = globalFilter.search.toLowerCase();
+      matchesSearch =
+        party.name.toLowerCase().includes(searchTerm) ||
+        party.lastName.toLowerCase().includes(searchTerm) ||
+        party.email.toLowerCase().includes(searchTerm) ||
+        party.phone.toLowerCase().includes(searchTerm) ||
+        party.dni.toLowerCase().includes(searchTerm) ||
+        party.description.toLowerCase().includes(searchTerm);
+    }
+    return matchesStatus && matchesSearch === true;
   };
 
   const handleDialogConfirmation = async () => {
@@ -150,13 +163,18 @@ const PartiesPage = () => {
     XLSX.writeFile(workbook, 'propiedades.xlsx');
   };
 
+  const handleSearch = (key: string, value: string) => {
+    setGlobalFilter((prev) => ({ ...prev, [key]: value }));
+  };
+
   return (
     <div className='space-y-6'>
       <div className='flex items-center justify-between'>
         <h1 className='text-3xl font-bold'>Terceros</h1>
 
         <div className='flex items-center gap-6'>
-          <InputFieldSeach setGlobalFilter={setGlobalFilter} />
+          {/* <InputFieldSeach setGlobalFilter={setGlobalFilter} /> */}
+          <FilterParties globalFilter={globalFilter} handleSearch={handleSearch} />
           <Button onClick={handleDownload}>
             <DownloadIcon className='h-4 w-4' />
           </Button>

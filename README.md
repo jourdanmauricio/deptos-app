@@ -267,3 +267,24 @@ Para soporte o consultas, por favor contacta al equipo de desarrollo.
 ---
 
 Desarrollado con ❤️ para la gestión eficiente de propiedades en alquiler.
+
+## Ejecutar migraciones en Turso
+
+1- Generar el cliente de Prisma
+
+```bash
+npx prisma generate
+```
+
+2- Agregar columna status a la tabla Party
+
+```bash
+# migration.sql
+ALTER TABLE Party ADD COLUMN status TEXT NOT NULL DEFAULT 'ACTIVE';
+```
+
+2- Ejecutar migraciones en Turso
+
+```bash
+turso db shell nombre-db < migration.sql
+```

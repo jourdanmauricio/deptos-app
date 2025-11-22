@@ -49,12 +49,14 @@ export const partyFormSchema = z.object({
   dni: z.string().min(1, 'Requerido'),
   cuil: z.string().min(1, 'Requerido'),
   phone: z.string().min(1, 'Requerido'),
+  status: z.enum(['ACTIVE', 'INACTIVE']),
   email: z
     .union([z.string().email({ message: 'Email inválido' }), z.literal('')])
     .transform((val) => (val === '' ? undefined : val))
     .optional(),
   documentFront: z.union([z.instanceof(File), z.string()]).optional(),
   documentBack: z.union([z.instanceof(File), z.string()]).optional(),
+  payslip: z.union([z.instanceof(File), z.string()]).optional(),
   description: z.string().optional(),
   address: z.string().min(1, 'Requerido'),
   job: z.string().optional(),

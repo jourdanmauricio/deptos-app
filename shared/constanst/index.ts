@@ -237,3 +237,13 @@ export const paymentStatusList = [
   { id: 'LATE', description: 'Pagado con atraso' },
   { id: 'CANCELLED', description: 'Cancelado' },
 ];
+
+export const statusesPartiesList = [
+  { id: 'ACTIVE', description: 'Activo' },
+  { id: 'INACTIVE', description: 'Inactivo' },
+];
+
+export const statusesPartiesConstants = {
+  ACTIVE: 'Activo',
+  INACTIVE: 'Inactivo',
+};

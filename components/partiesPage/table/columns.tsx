@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { EditIcon, Trash2Icon } from 'lucide-react';
 import { TruncatedCell } from '@/components/ui/custom/truncatedCell';
 import { Party } from '@/shared/types';
+import { statusesPartiesConstants } from '@/shared/constanst';
 
 type DataTableColumnsProps = {
   onEdit: (party: Party) => void;
@@ -42,6 +43,15 @@ export const getColumns = ({ onEdit, onDelete }: DataTableColumnsProps): ColumnD
         OWNER: 'Propietario',
       };
       return <TruncatedCell value={typeLabels[party.type] || party.type} linesMax={2} />;
+    },
+  },
+  {
+    accessorKey: 'status',
+    header: 'ESTADO',
+    size: 120,
+    cell: ({ row }) => {
+      const party = row.original;
+      return <span>{statusesPartiesConstants[party.status]}</span>;
     },
   },
   {

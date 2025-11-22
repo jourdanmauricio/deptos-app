@@ -21,6 +21,7 @@ import { useCreateParty, useUpdateParty } from '@/hooks/use-parties';
 import { TypePartiesDropdown } from '@/components/ui/dropdowns/TypePartiesDropdown';
 import ImageUpload from '@/components/ui/custom/image-upload/ImageUpload';
 import { uploadImageToCloudinary, deleteImageFromCloudinary } from '@/lib/actions/media';
+import { TypeStatusPartiesDropdown } from '@/components/ui/dropdowns/TypeStatusPartiesDropdown';
 
 interface ModalProps {
   open: boolean;
@@ -36,11 +37,13 @@ const defaultValues = {
   dni: '',
   cuil: '',
   phone: '',
+  status: 'ACTIVE' as Party['status'],
   email: '',
   description: '',
   job: '',
   documentFront: '',
   documentBack: '',
+  payslip: '',
   bank: '',
   accountNumber: '',
   cbu: '',
@@ -66,6 +69,7 @@ const Modal = ({ open, closeModal, party }: ModalProps) => {
         lastName: party.lastName ?? '',
         documentFront: party.documentFront ?? '',
         documentBack: party.documentBack ?? '',
+        payslip: party.payslip ?? '',
         bank: party.bank ?? '',
         accountNumber: party.accountNumber ?? '',
         cbu: party.cbu ?? '',
@@ -83,6 +87,8 @@ const Modal = ({ open, closeModal, party }: ModalProps) => {
       let documentBackUrl: string | null = null;
       let oldDocumentFrontUrl: string | null = null;
       let oldDocumentBackUrl: string | null = null;
+      let payslipUrl: string | null = null;
+      let oldPayslipUrl: string | null = null;
 
       // Manejar documentFront
       if (values.documentFront instanceof File) {
@@ -140,6 +146,34 @@ const Modal = ({ open, closeModal, party }: ModalProps) => {
         }
       }
 
+      // Manejar payslip
+      if (values.payslip instanceof File) {
+        // Es un archivo nuevo, subirlo a Cloudinary
+        payslipUrl = await uploadImageToCloudinary(values.payslip, folderPath);
+        // Si estamos editando y había una imagen anterior, eliminarla
+        if (mode === 'EDIT' && party?.payslip) {
+          oldPayslipUrl = party.payslip;
+        }
+      } else if (typeof values.payslip === 'string') {
+        if (values.payslip) {
+          // Es una URL existente, mantenerla
+          payslipUrl = values.payslip;
+        } else {
+          // Campo vacío (eliminado por el usuario)
+          if (mode === 'EDIT' && party?.payslip) {
+            oldPayslipUrl = party.payslip;
+          }
+          payslipUrl = null;
+        }
+      } else {
+        // undefined - mantener la imagen existente si estamos editando
+        if (mode === 'EDIT') {
+          payslipUrl = party?.payslip ?? null;
+        } else {
+          payslipUrl = null;
+        }
+      }
+
       const data = {
         ...values,
         email: values.email || '',
@@ -147,6 +181,7 @@ const Modal = ({ open, closeModal, party }: ModalProps) => {
         job: values.job || '',
         documentFront: documentFrontUrl,
         documentBack: documentBackUrl,
+        payslip: payslipUrl,
         bank: values.bank || '',
         accountNumber: values.accountNumber || '',
         cbu: values.cbu || '',
@@ -194,7 +229,7 @@ const Modal = ({ open, closeModal, party }: ModalProps) => {
         <div style={{ minWidth: '600px' }}>
           <DialogHeader>
             <DialogTitle className='dialog-title'>
-              {mode === 'CREATE' ? 'Nuevo tercero' : `Editar tercero ${form.watch('name')}`}
+              {mode === 'CREATE' ? 'Nuevo tercero' : `Editar ${form.watch('name')}`}
             </DialogTitle>
             <DialogDescription />
             <Form {...form}>
@@ -219,6 +254,22 @@ const Modal = ({ open, closeModal, party }: ModalProps) => {
                     <InputField label='CUIL' name='cuil' placeholder='CUIL' form={form} />
                   </div>
 
+                  <div className='flex gap-8'>
+                    <InputField
+                      label='Teléfono'
+                      name='phone'
+                      placeholder='Teléfono'
+                      form={form}
+                      className='w-full'
+                    />
+                    <TypeStatusPartiesDropdown
+                      label='Estado'
+                      name='status'
+                      form={form}
+                      className='w-full'
+                    />
+                  </div>
+
                   <InputField label='Teléfono' name='phone' placeholder='Teléfono' form={form} />
 
                   <InputField label='Email' name='email' placeholder='Email' form={form} />
@@ -232,6 +283,10 @@ const Modal = ({ open, closeModal, party }: ModalProps) => {
                       <ImageUpload label='Documento frente' name='documentFront' form={form} />
                       <ImageUpload label='Documento dorso' name='documentBack' form={form} />
                     </>
+                  )}
+
+                  {form.watch('type') === 'GUARANTOR' && (
+                    <ImageUpload label='Recibo de sueldo' name='payslip' form={form} />
                   )}
 
                   {form.watch('type') === 'OWNER' && (
