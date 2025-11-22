@@ -50,7 +50,6 @@ export function InputDatePicker({
   // startMonth: define el año mínimo disponible en el dropdown
   // endMonth: define el año máximo disponible en el dropdown (hasta 2035)
   const startMonth = React.useMemo(() => {
-    const now = new Date();
     return new Date(2020, 0, 1); // 1 de enero del año actual
   }, []);
 

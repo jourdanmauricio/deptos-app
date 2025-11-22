@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import type { UseFormReturn } from 'react-hook-form';
 
-import { getParties, getTenants } from '@/lib/actions/parties';
+import { getTenants } from '@/lib/actions/parties';
 import { PartyType } from '@/lib/generated/prisma/client';
 import Dropdown from '@/components/ui/custom/dropdown';
 import DropdownLoadSkeleton from '@/components/ui/skeletons/dropdownLoadSkeleton';
@@ -48,7 +48,7 @@ const TenantsDropdown = ({
 
   // Si typePartie es undefined, mostrar todas las propiedades
   const filteredParties = typePartie
-    ? parties?.filter((party) => party.type === (typePartie as PartyType))
+    ? parties?.filter((party: any) => party.type === (typePartie as PartyType))
     : parties;
 
   if (isLoading) {

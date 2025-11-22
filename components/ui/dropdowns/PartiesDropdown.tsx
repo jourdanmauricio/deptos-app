@@ -47,7 +47,7 @@ const PartiesDropdown = ({
 
   // Si typePartie es undefined, mostrar todas las propiedades
   const filteredParties = typePartie
-    ? parties?.filter((party) => party.type === (typePartie as PartyType))
+    ? parties?.filter((party: any) => party.type === (typePartie as PartyType))
     : parties;
 
   if (isLoading) {
