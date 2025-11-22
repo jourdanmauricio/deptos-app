@@ -1,7 +1,6 @@
 import { type ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { EditIcon, Trash2Icon } from 'lucide-react';
-import { TruncatedCell } from '@/components/ui/custom/truncatedCell';
 
 import {
   paymentConceptsConstants,
@@ -9,6 +8,8 @@ import {
 } from '@/shared/constanst';
 import { Badge } from '@/components/ui/badge';
 import { Payment } from '@/shared/types/payment';
+import { TruncatedCell } from '@/components/ui/custom/truncatedCell';
+import { rentalStatus as rentalStatusConstants } from '@/shared/constanst';
 
 type DataTableColumnsProps = {
   onEdit: (payment: Payment) => void;
@@ -19,7 +20,9 @@ export const getColumns = ({ onEdit, onDelete }: DataTableColumnsProps): ColumnD
   {
     id: 'tenant',
     header: 'INQUILINO',
-    size: 200,
+    size: 0,
+    minSize: 200,
+    maxSize: 350,
     cell: ({ row }) => {
       const payment = row.original;
       return (
@@ -33,8 +36,7 @@ export const getColumns = ({ onEdit, onDelete }: DataTableColumnsProps): ColumnD
   {
     accessorKey: 'status',
     header: 'ESTADO',
-    size: 0,
-    minSize: 200,
+    size: 120,
     cell: ({ row }) => {
       const payment = row.original;
       const today = new Date();
@@ -60,10 +62,6 @@ export const getColumns = ({ onEdit, onDelete }: DataTableColumnsProps): ColumnD
         <Badge variant='outline' className={`mx-auto ${colors}`}>
           {paymentStatusConstants[payment.status as keyof typeof paymentStatusConstants]}
         </Badge>
-        // <TruncatedCell
-        //   value={paymentStatusConstants[payment.status as keyof typeof paymentStatusConstants]}
-        //   linesMax={2}
-        // />
       );
     },
   },
@@ -72,21 +70,27 @@ export const getColumns = ({ onEdit, onDelete }: DataTableColumnsProps): ColumnD
     header: 'CONCEPTO',
     size: 0,
     minSize: 200,
+    maxSize: 400,
     cell: ({ row }) =>
       paymentConceptsConstants[row.original.concept as keyof typeof paymentConceptsConstants],
   },
   {
     accessorKey: 'periodMonth',
     header: 'MES',
-    size: 0,
-    minSize: 200,
+    size: 80,
     cell: ({ row }) => row.original.periodMonth?.toString() || '-',
+  },
+  {
+    accessorKey: 'rentalStatus',
+    header: 'ESTADO RENTA',
+    size: 130,
+    cell: ({ row }) =>
+      rentalStatusConstants[row.original.rental.status as keyof typeof rentalStatusConstants],
   },
   {
     accessorKey: 'paidDate',
     header: 'FECHA PAGO',
-    size: 0,
-    minSize: 200,
+    size: 110,
     cell: ({ row }) =>
       row.original.paidDate?.toLocaleDateString('es-ES', {
         day: '2-digit',
@@ -97,8 +101,7 @@ export const getColumns = ({ onEdit, onDelete }: DataTableColumnsProps): ColumnD
   {
     accessorKey: 'amount',
     header: 'MONTO',
-    size: 0,
-    minSize: 200,
+    size: 100,
     cell: ({ row }) => {
       const payment = row.original;
       return (
@@ -109,9 +112,35 @@ export const getColumns = ({ onEdit, onDelete }: DataTableColumnsProps): ColumnD
     },
   },
   {
+    accessorKey: 'penalty',
+    header: 'INTERES',
+    size: 100,
+    cell: ({ row }) => {
+      const payment = row.original;
+      return (
+        <span className={`${payment.amount === 0 ? 'font-bold text-green-900' : ''}`}>
+          {payment.amount === 0 ? 'Ajuste' : payment.penalty?.toString() || '0'}
+        </span>
+      );
+    },
+  },
+  {
+    accessorKey: 'total',
+    header: 'TOTAL',
+    size: 90,
+    cell: ({ row }) => {
+      const payment = row.original;
+      return (
+        <span className={`${payment.amount === 0 ? 'font-bold text-green-900' : ''}`}>
+          {payment.amount === 0 ? 'Ajuste' : payment.total?.toString() || '0'}
+        </span>
+      );
+    },
+  },
+  {
     id: 'actions',
     header: 'ACCIONES',
-    size: 180,
+    size: 120,
     cell: ({ row }) => {
       const payment = row.original;
       return (

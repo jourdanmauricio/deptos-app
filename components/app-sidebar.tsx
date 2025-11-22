@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useSession } from 'next-auth/react';
-import { IconInnerShadowTop } from '@tabler/icons-react';
+import { IconHome2, IconInnerShadowTop } from '@tabler/icons-react';
 
 import {
   Sidebar,
@@ -36,7 +36,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton asChild className='data-[slot=sidebar-menu-button]:!p-1.5'>
               <a href='#'>
-                <IconInnerShadowTop className='!size-5' />
+                <IconHome2 className='text-primary !size-5' />
                 <span className='text-base font-semibold'>Deptos App</span>
               </a>
             </SidebarMenuButton>
