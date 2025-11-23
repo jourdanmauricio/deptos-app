@@ -66,9 +66,10 @@ export function useDeleteRental() {
   return useMutation({
     mutationFn: ({ id, propertyId }: { id: string; propertyId: string }) =>
       deleteRental(id, propertyId),
-    onSuccess: async () => {
+    onSuccess: async (data, variables) => {
       await queryClient.invalidateQueries({ queryKey: ['rentals'] });
       await queryClient.invalidateQueries({ queryKey: ['properties'] });
+      await queryClient.invalidateQueries({ queryKey: ['payments', variables.propertyId] });
       toast.success('Alquiler eliminado correctamente');
     },
     onError: (error: Error) => {

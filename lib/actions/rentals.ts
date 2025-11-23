@@ -59,60 +59,60 @@ export async function createRental(data: Omit<PrismaRental, 'id' | 'createdAt' |
           status: PropertyStatus.RENTED,
         },
       });
-      // TODO: El monto es el inicialRent para los primeros meses. Depende de updateMonths.
-      // Luego de los primeros meses, el monto se coloca en 0
-      let amount = data.initialRent;
+
+      // Preparar todos los pagos en un array
+      const payments = [];
 
       // periodStart es el primer dia del mes
-      const periodStart = new Date(data.startDate);
+      let periodStart = new Date(data.startDate);
       periodStart.setDate(1);
 
-      // periodEnd ultimo dia del mismo mes que periodStart
-      let periodEnd = endOfMonth(periodStart);
-
       for (let i = 0; i < data.contractDurationYears * 12; i++) {
-        if (i < (data.rentUpdateMonths || 0)) {
-          amount = data.initialRent;
-        } else {
-          amount = 0;
-        }
+        const amount = i < (data.rentUpdateMonths || 0) ? data.initialRent : 0;
 
-        await tx.payment.create({
-          data: {
-            rentalId: rental.id,
-            amount: amount,
-            penalty: data.penaltyRate,
-            total: data.initialRent + (data.penaltyRate || 0),
-            paidDate: periodStart,
-            status: PaymentStatus.PENDING,
-            paymentMethod: data.paymentMethod,
-            concept: PaymentConcept.RENT,
-            periodStart,
-            periodEnd,
-            periodMonth: periodStart.getMonth() + 1,
-          },
+        // Crear nueva instancia de Date para cada periodo
+        const currentPeriodStart = new Date(periodStart);
+        const periodEnd = endOfMonth(currentPeriodStart);
+
+        payments.push({
+          rentalId: rental.id,
+          amount: amount,
+          penalty: data.penaltyRate,
+          total: data.initialRent + (data.penaltyRate || 0),
+          paidDate: currentPeriodStart,
+          status: PaymentStatus.PENDING,
+          paymentMethod: data.paymentMethod,
+          concept: PaymentConcept.RENT,
+          periodStart: currentPeriodStart,
+          periodEnd,
+          periodMonth: currentPeriodStart.getMonth() + 1,
         });
+
         periodStart.setMonth(periodStart.getMonth() + 1);
-        periodEnd = endOfMonth(periodStart);
       }
 
-      // TODO: si el alquiler tiene garantía, crear el pago de la garantía
+      // Si el alquiler tiene garantía, agregar el pago de la garantía
       if (data.deposit > 0) {
-        await tx.payment.create({
-          data: {
-            rentalId: rental.id,
-            amount: data.deposit,
-            concept: PaymentConcept.DEPOSIT_GUARANTOR,
-            paidDate: data.startDate,
-            status: PaymentStatus.PENDING,
-            paymentMethod: data.paymentMethod,
-            periodStart: data.startDate,
-            // periodEnd ultimo dia del mismo mes que startDate
-            periodEnd: new Date(data.startDate.getFullYear(), data.startDate.getMonth() + 1, 0),
-            periodMonth: 0,
-          },
+        payments.push({
+          rentalId: rental.id,
+          amount: data.deposit,
+          concept: PaymentConcept.DEPOSIT_GUARANTOR,
+          paidDate: data.startDate,
+          status: PaymentStatus.PENDING,
+          paymentMethod: data.paymentMethod,
+          periodStart: data.startDate,
+          periodEnd: new Date(data.startDate.getFullYear(), data.startDate.getMonth() + 1, 0),
+          periodMonth: 0,
+          penalty: null,
+          total: data.deposit,
         });
       }
+
+      // Crear todos los pagos de una sola vez
+      await tx.payment.createMany({
+        data: payments,
+      });
+
       return rental;
     });
 
