@@ -246,8 +246,9 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
                 <PartiesDropdown
                   label='Inquilino'
                   name='tenantId'
-                  typePartie='TENANT'
+                  type='TENANT'
                   form={form}
+                  status='ACTIVE'
                   className='w-full'
                 />
 
@@ -259,7 +260,7 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
               <PartiesDropdown
                 label='Propietario'
                 name='ownerId'
-                typePartie='OWNER'
+                type='OWNER'
                 form={form}
                 className='w-full'
               />
@@ -271,7 +272,8 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
                   <PartiesDropdown
                     label='Garante'
                     name={`guarantors[${index}]`}
-                    typePartie='GUARANTOR'
+                    type='GUARANTOR'
+                    status='ACTIVE'
                     form={form}
                     className='w-full'
                   />

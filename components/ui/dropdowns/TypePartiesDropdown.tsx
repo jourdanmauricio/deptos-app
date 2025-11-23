@@ -13,6 +13,7 @@ type DropdownProps = {
   onChange?: (item: { id: string; description: string }) => void;
   label?: string;
   placeholder?: string;
+  enableClean?: boolean;
 };
 
 const TypePartiesDropdown = ({
@@ -24,6 +25,7 @@ const TypePartiesDropdown = ({
   onChange,
   label,
   placeholder,
+  enableClean,
 }: DropdownProps) => {
   const labelName = label ?? 'Rol' + (required ? '*' : '');
 
@@ -44,6 +46,7 @@ const TypePartiesDropdown = ({
         className={className}
         labelClassName={labelClassName}
         onChange={onChange}
+        enableClean={enableClean}
       />
     </Suspense>
   );

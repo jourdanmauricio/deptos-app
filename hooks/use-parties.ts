@@ -7,11 +7,12 @@ import {
   getPartyById,
 } from '@/lib/actions/parties';
 import { toast } from 'sonner';
+import { PartyStatus, PartyType } from '@/lib/generated/prisma/client';
 
-export function useParties() {
+export function useParties(status?: PartyStatus | undefined, type?: PartyType | undefined) {
   return useQuery({
-    queryKey: ['parties'],
-    queryFn: getParties,
+    queryKey: ['parties', status, type],
+    queryFn: () => getParties(status, type),
   });
 }
 

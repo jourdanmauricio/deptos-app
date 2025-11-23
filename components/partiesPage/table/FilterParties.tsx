@@ -7,15 +7,17 @@ import { Form } from '@/components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { InputField } from '@/components/ui/custom/input-field';
 import { TypeStatusPartiesDropdown } from '@/components/ui/dropdowns/TypeStatusPartiesDropdown';
+import { TypePartiesDropdown } from '@/components/ui/dropdowns/TypePartiesDropdown';
 
 type FilterPartiesProps = {
-  globalFilter: { search: string; status: string };
+  globalFilter: { search: string; status: string; type: string };
   handleSearch: (key: string, value: string) => void;
 };
 
 const FilterPartiesSchema = z.object({
   search: z.string().optional(),
   status: z.string().optional(),
+  type: z.string().optional(),
 });
 
 const FilterParties = ({ globalFilter, handleSearch }: FilterPartiesProps) => {
@@ -31,6 +33,9 @@ const FilterParties = ({ globalFilter, handleSearch }: FilterPartiesProps) => {
       }
       if (name === 'status') {
         handleSearch('status', value.status || '');
+      }
+      if (name === 'type') {
+        handleSearch('type', value.type || '');
       }
     });
     return () => subscription.unsubscribe();
@@ -53,6 +58,14 @@ const FilterParties = ({ globalFilter, handleSearch }: FilterPartiesProps) => {
             label=''
             name='status'
             placeholder='Estado del tercero'
+            form={form}
+            className='min-w-[250px]'
+            enableClean
+          />
+          <TypePartiesDropdown
+            label=''
+            name='type'
+            placeholder='Tipo de tercero'
             form={form}
             className='min-w-[250px]'
             enableClean

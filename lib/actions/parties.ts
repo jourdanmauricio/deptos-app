@@ -3,11 +3,26 @@
 import prisma from '@/lib/prisma.server';
 import { revalidatePath } from 'next/cache';
 import { Party } from '@/shared/types/party';
-import { $Enums } from '@/lib/generated/prisma/client';
+import { $Enums, PartyStatus, PartyType } from '@/lib/generated/prisma/client';
 
-export async function getParties() {
+export async function getParties(status?: PartyStatus | undefined, type?: PartyType | undefined) {
+  let conditions = {};
+  if (status) {
+    conditions = {
+      status: status,
+    };
+  }
+  if (type) {
+    conditions = {
+      ...conditions,
+      type: type,
+    };
+  }
   try {
     const parties = await prisma.party.findMany({
+      where: {
+        ...conditions,
+      },
       orderBy: {
         createdAt: 'desc',
       },

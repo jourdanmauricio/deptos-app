@@ -29,7 +29,8 @@ const PartiesPage = () => {
   const [globalFilter, setGlobalFilter] = useState<{
     search: string;
     status: string;
-  }>({ search: '', status: '' });
+    type: string;
+  }>({ search: '', status: '', type: '' });
   const [rowSelection, setRowSelection] = useState<{ [key: string]: boolean }>({});
   const [tableInstance, setTableInstance] = useState<TableType<Party> | null>(null);
 
@@ -71,9 +72,14 @@ const PartiesPage = () => {
     // Evaluar todas las condiciones y que todas se cumplan
     let matchesSearch = true;
     let matchesStatus = true;
+    let matchesType = true;
 
     if (globalFilter.status && globalFilter.status !== '') {
       matchesStatus = globalFilter.status.toLowerCase() === party.status.toLowerCase();
+    }
+
+    if (globalFilter.type && globalFilter.type !== '') {
+      matchesType = globalFilter.type.toLowerCase() === party.type.toLowerCase();
     }
 
     if (globalFilter.search && globalFilter.search !== '') {
@@ -86,7 +92,7 @@ const PartiesPage = () => {
         party.dni.toLowerCase().includes(searchTerm) ||
         party.description.toLowerCase().includes(searchTerm);
     }
-    return matchesStatus && matchesSearch === true;
+    return matchesStatus && matchesSearch && matchesType === true;
   };
 
   const handleDialogConfirmation = async () => {
@@ -173,7 +179,6 @@ const PartiesPage = () => {
         <h1 className='text-3xl font-bold'>Terceros</h1>
 
         <div className='flex items-center gap-6'>
-          {/* <InputFieldSeach setGlobalFilter={setGlobalFilter} /> */}
           <FilterParties globalFilter={globalFilter} handleSearch={handleSearch} />
           <Button onClick={handleDownload}>
             <DownloadIcon className='h-4 w-4' />
