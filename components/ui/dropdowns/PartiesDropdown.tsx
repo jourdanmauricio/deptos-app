@@ -51,7 +51,7 @@ const PartiesDropdown = ({
     : parties;
 
   if (isLoading) {
-    return <DropdownLoadSkeleton label={labelName} />;
+    return <DropdownLoadSkeleton label={labelName} className={className} />;
   }
 
   return (

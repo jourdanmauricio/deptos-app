@@ -165,7 +165,6 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
     try {
       if (mode === 'NEW') {
         createRentalMutation.mutate(valuesToSubmit);
-        router.push('/dashboard/rentals');
       } else {
         if (rental?.id) {
           updateRentalMutation.mutate({
@@ -173,8 +172,8 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
             data: valuesToSubmit,
           });
         }
-        router.push('/dashboard/rentals');
       }
+      router.push('/dashboard/rentals');
     } catch (error) {
       console.error('Error en submit:', error);
     }
@@ -221,7 +220,7 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
       <h1 className='text-2xl font-bold'>
         {mode === 'NEW' ? 'Nuevo alquiler' : 'Editar alquiler'}
       </h1>
-      {isLoading || isFetching ? (
+      {isLoading ? (
         <div className='mt-20 flex items-center justify-center'>
           <LoaderIcon className='h-8 w-8 animate-spin' />
         </div>

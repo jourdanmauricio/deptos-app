@@ -1,7 +1,6 @@
 'use server';
 
 import prisma from '@/lib/prisma.server';
-import { revalidatePath } from 'next/cache';
 import {
   PaymentConcept,
   Rental as PrismaRental,
@@ -50,71 +49,73 @@ export async function getRentalById(id: string) {
 
 export async function createRental(data: Omit<PrismaRental, 'id' | 'createdAt' | 'updatedAt'>) {
   try {
-    const rental = await prisma.rental.create({
-      data,
-    });
-    await prisma.property.update({
-      where: { id: data.propertyId },
-      data: {
-        status: PropertyStatus.RENTED,
-      },
-    });
-    // TODO: El monto es el inicialRent para los primeros meses. Depende de updateMonths.
-    // Luego de los primeros meses, el monto se coloca en 0
-    let amount = data.initialRent;
+    const rental = await prisma.$transaction(async (tx) => {
+      const rental = await tx.rental.create({
+        data,
+      });
+      await tx.property.update({
+        where: { id: data.propertyId },
+        data: {
+          status: PropertyStatus.RENTED,
+        },
+      });
+      // TODO: El monto es el inicialRent para los primeros meses. Depende de updateMonths.
+      // Luego de los primeros meses, el monto se coloca en 0
+      let amount = data.initialRent;
 
-    // periodStart es el primer dia del mes
-    const periodStart = new Date(data.startDate);
-    periodStart.setDate(1);
+      // periodStart es el primer dia del mes
+      const periodStart = new Date(data.startDate);
+      periodStart.setDate(1);
 
-    // periodEnd ultimo dia del mismo mes que periodStart
-    let periodEnd = endOfMonth(periodStart);
+      // periodEnd ultimo dia del mismo mes que periodStart
+      let periodEnd = endOfMonth(periodStart);
 
-    for (let i = 0; i < data.contractDurationYears * 12; i++) {
-      if (i < (data.rentUpdateMonths || 0)) {
-        amount = data.initialRent;
-      } else {
-        amount = 0;
+      for (let i = 0; i < data.contractDurationYears * 12; i++) {
+        if (i < (data.rentUpdateMonths || 0)) {
+          amount = data.initialRent;
+        } else {
+          amount = 0;
+        }
+
+        await tx.payment.create({
+          data: {
+            rentalId: rental.id,
+            amount: amount,
+            penalty: data.penaltyRate,
+            total: data.initialRent + (data.penaltyRate || 0),
+            paidDate: periodStart,
+            status: PaymentStatus.PENDING,
+            paymentMethod: data.paymentMethod,
+            concept: PaymentConcept.RENT,
+            periodStart,
+            periodEnd,
+            periodMonth: periodStart.getMonth() + 1,
+          },
+        });
+        periodStart.setMonth(periodStart.getMonth() + 1);
+        periodEnd = endOfMonth(periodStart);
       }
 
-      await prisma.payment.create({
-        data: {
-          rentalId: rental.id,
-          amount: amount,
-          penalty: data.penaltyRate,
-          total: data.initialRent + (data.penaltyRate || 0),
-          paidDate: periodStart,
-          status: PaymentStatus.PENDING,
-          paymentMethod: data.paymentMethod,
-          concept: PaymentConcept.RENT,
-          periodStart,
-          periodEnd,
-          periodMonth: periodStart.getMonth() + 1,
-        },
-      });
-      periodStart.setMonth(periodStart.getMonth() + 1);
-      periodEnd = endOfMonth(periodStart);
-    }
+      // TODO: si el alquiler tiene garantía, crear el pago de la garantía
+      if (data.deposit > 0) {
+        await tx.payment.create({
+          data: {
+            rentalId: rental.id,
+            amount: data.deposit,
+            concept: PaymentConcept.DEPOSIT_GUARANTOR,
+            paidDate: data.startDate,
+            status: PaymentStatus.PENDING,
+            paymentMethod: data.paymentMethod,
+            periodStart: data.startDate,
+            // periodEnd ultimo dia del mismo mes que startDate
+            periodEnd: new Date(data.startDate.getFullYear(), data.startDate.getMonth() + 1, 0),
+            periodMonth: 0,
+          },
+        });
+      }
+      return rental;
+    });
 
-    // TODO: si el alquiler tiene garantía, crear el pago de la garantía
-    if (data.deposit > 0) {
-      await prisma.payment.create({
-        data: {
-          rentalId: rental.id,
-          amount: data.deposit,
-          concept: PaymentConcept.DEPOSIT_GUARANTOR,
-          paidDate: data.startDate,
-          status: PaymentStatus.PENDING,
-          paymentMethod: data.paymentMethod,
-          periodStart: data.startDate,
-          // periodEnd ultimo dia del mismo mes que startDate
-          periodEnd: new Date(data.startDate.getFullYear(), data.startDate.getMonth() + 1, 0),
-          periodMonth: 0,
-        },
-      });
-    }
-
-    revalidatePath('/dashboard/rentals');
     return rental;
   } catch (error) {
     console.error('Error creating rental:', error);
@@ -156,8 +157,6 @@ export async function updateRental(
       where: { id },
       data: updateData,
     });
-    revalidatePath('/dashboard/rentals');
-    // revalidatePath(`/dashboard/properties/${propertyId}`);
     return rental;
   } catch (error) {
     console.error('Error updating rental:', error);
@@ -167,17 +166,18 @@ export async function updateRental(
 
 export async function deleteRental(id: string, propertyId: string) {
   try {
-    await prisma.rental.delete({
-      where: { id },
-    });
-    await prisma.property.update({
-      where: { id: propertyId },
-      data: {
-        status: PropertyStatus.ACTIVE,
-      },
-    });
+    await prisma.$transaction([
+      prisma.rental.delete({
+        where: { id },
+      }),
+      prisma.property.update({
+        where: { id: propertyId },
+        data: {
+          status: PropertyStatus.ACTIVE,
+        },
+      }),
+    ]);
 
-    revalidatePath('/dashboard/rentals');
     return { success: true };
   } catch (error) {
     console.error('Error deleting rental:', error);

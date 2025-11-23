@@ -270,8 +270,6 @@ const Modal = ({ open, closeModal, party }: ModalProps) => {
                     />
                   </div>
 
-                  <InputField label='Teléfono' name='phone' placeholder='Teléfono' form={form} />
-
                   <InputField label='Email' name='email' placeholder='Email' form={form} />
 
                   <InputField label='Trabajo' name='job' placeholder='Trabajo' form={form} />
