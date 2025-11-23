@@ -84,7 +84,7 @@ const ContractModalGenerate = ({ open, onClose, form }: ContractModalGeneratePro
     queryClient.invalidateQueries({ queryKey: ['parties'] });
 
     setIsContentReady(false);
-    form.setValue('contractContent', '');
+    // form.setValue('contractContent', '', { shouldDirty: true });
 
     onClose();
   };

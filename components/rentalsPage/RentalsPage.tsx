@@ -42,6 +42,11 @@ const RentalsPage = () => {
   }, []);
 
   const onDownloadContract = useCallback(async (rental: Rental) => {
+    if (!rental.contractContent) {
+      toast.error('No hay contenido para generar el contrato');
+      return;
+    }
+
     const content = rental.contractContent || '';
     const fileName = `contrato_${rental.tenantId}_${Date.now()}.docx`;
 

@@ -70,17 +70,23 @@ const UsersPage = () => {
         setPageIndex={() => {}}
         globalFilterFn={() => true}
       />
-      <Modal
-        open={modalIsOpen}
-        closeModal={() => {
-          setCurrentUser(null);
-          setModalIsOpen(false);
-        }}
-        user={currentUser}
-      />
+      {modalIsOpen && (
+        <Modal
+          open={modalIsOpen}
+          closeModal={() => {
+            setCurrentUser(null);
+            setModalIsOpen(false);
+          }}
+          user={currentUser}
+        />
+      )}
+
       <CustomAlertDialog
         open={deleteModalIsOpen}
-        onCloseDialog={() => setDeleteModalIsOpen(false)}
+        onCloseDialog={() => {
+          setCurrentUser(null);
+          setDeleteModalIsOpen(false);
+        }}
         onContinueClick={handleDialogConfirmation}
         title={'¿Estás seguro de eliminar este usuario?'}
         description={'Esta acción no se puede deshacer.'}
