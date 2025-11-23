@@ -44,13 +44,7 @@ const PartiesDropdown = ({
         description: party.lastName + ', ' + party.name,
         type: party.type,
       })),
-    staleTime: 1000 * 60 * 5, // 5 minutos
   });
-
-  // Si typePartie es undefined, mostrar todas las propiedades
-  // const filteredParties = typePartie
-  //   ? parties?.filter((party: any) => party.type === (typePartie as PartyType))
-  //   : parties;
 
   if (isLoading) {
     return <DropdownLoadSkeleton label={labelName} className={className} />;
