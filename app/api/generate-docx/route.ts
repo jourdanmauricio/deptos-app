@@ -16,17 +16,22 @@ export async function POST(request: NextRequest) {
         <head>
           <meta charset="UTF-8">
           <style>
+            * {
+              font-family: 'Liberation Sans', 'DejaVu Sans', Arial, sans-serif !important;
+            }
             body {
-              font-family: 'Times New Roman', serif;
+              font-family: 'Liberation Sans', 'DejaVu Sans', Arial, sans-serif;
               font-size: 12pt;
               line-height: 1.5;
             }
             p {
               margin-bottom: 12pt;
               text-align: justify;
+              font-family: 'Liberation Sans', 'DejaVu Sans', Arial, sans-serif;
             }
             strong {
               font-weight: bold;
+              font-family: 'Liberation Sans', 'DejaVu Sans', Arial, sans-serif;
             }
           </style>
         </head>
@@ -41,6 +46,8 @@ export async function POST(request: NextRequest) {
         bottom: 1440,
         left: 1440,
       },
+      font: 'Arial',
+      fontSize: 24, // 12pt = 24 half-points
     });
 
     // Convertir a Uint8Array para NextResponse

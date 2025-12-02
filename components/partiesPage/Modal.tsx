@@ -66,6 +66,7 @@ const Modal = ({ open, closeModal, party }: ModalProps) => {
       form.reset({
         ...party,
         cuil: party.cuil ?? '',
+        email: party.email ?? '',
         lastName: party.lastName ?? '',
         documentFront: party.documentFront ?? '',
         documentBack: party.documentBack ?? '',

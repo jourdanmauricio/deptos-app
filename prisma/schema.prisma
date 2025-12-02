@@ -102,7 +102,7 @@ model Party {
   cuil             String
   phone            String
   status           PartyStatus @default(ACTIVE)
-  email            String
+  email            String?
   description      String
   address          String
   job              String

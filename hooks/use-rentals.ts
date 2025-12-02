@@ -48,6 +48,7 @@ export function useUpdateRental() {
           queryClient.invalidateQueries({
             queryKey: ['rental', variables.id],
           }),
+          queryClient.invalidateQueries({ queryKey: ['properties'] }),
         ]);
       } catch (error) {
         console.error('Error invalidating queries:', error);

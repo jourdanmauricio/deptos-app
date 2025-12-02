@@ -215,6 +215,12 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
     setContractModalIsOpen(true);
   };
 
+  const handleGenerateContract = async () => {
+    form.setValue('contractContent', '');
+    // await queryClient.invalidateQueries({ queryKey: ['wordTemplates'] });
+    setContractModalIsOpen(true);
+  };
+
   return (
     <div>
       <h1 className='text-2xl font-bold'>
@@ -364,6 +370,7 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
                   className='w-full'
                   regExp={/^(0|(0,\d{0,2})|([1-9]\d{0,2})(,\d{0,2})?)?$/}
                 />
+
                 <InputNumberField
                   label='Tasa de rescisión (%)'
                   name='rescissionRate'
@@ -433,11 +440,20 @@ const EditRentalPage = ({ rentalId }: EditRentalPageProps) => {
                 name='wordTemplateId'
                 form={form}
                 className='w-full'
+                onChange={() => {
+                  form.setValue('contractContent', '');
+                }}
               />
 
-              <Button type='button' className='mb-1 self-end' onClick={handleViewContract}>
-                Editar contrato
-              </Button>
+              <div className='flex justify-end gap-8'>
+                <Button type='button' className='mb-1 self-end' onClick={handleGenerateContract}>
+                  Generar contrato
+                </Button>
+
+                <Button type='button' className='mb-1 self-end' onClick={handleViewContract}>
+                  Editar contrato
+                </Button>
+              </div>
             </div>
 
             <div className='col-span-2 flex justify-end gap-8 pt-10'>

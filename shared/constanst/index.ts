@@ -11,6 +11,7 @@ import {
   IconUsers,
   IconCoins,
 } from '@tabler/icons-react';
+import { Banknote } from 'lucide-react';
 
 export const menuItems = {
   user: {
@@ -82,6 +83,11 @@ export const menuItems = {
       name: 'Reportes',
       url: '#',
       icon: IconReport,
+    },
+    {
+      name: 'Indicadores BCRA',
+      url: '/dashboard/bcra',
+      icon: Banknote,
     },
   ],
 };

@@ -32,7 +32,7 @@ interface ContractModalGenerateProps {
 const ContractModalGenerate = ({ open, onClose, form }: ContractModalGenerateProps) => {
   const [isContentReady, setIsContentReady] = useState(false);
 
-  const wordTemplateId = form.getValues('wordTemplateId');
+  const wordTemplateId = form.watch('wordTemplateId');
   const queryClient = useQueryClient();
 
   const { data: wordTemplate, isLoading: isLoadingWordTemplate } = useWordTemplate(
@@ -90,7 +90,7 @@ const ContractModalGenerate = ({ open, onClose, form }: ContractModalGeneratePro
   };
 
   useEffect(() => {
-    if (form.getValues('contractContent')) {
+    if (form.watch('contractContent')) {
       setIsContentReady(true);
       return;
     }
@@ -100,6 +100,8 @@ const ContractModalGenerate = ({ open, onClose, form }: ContractModalGeneratePro
     }
 
     if (wordTemplate) {
+      let content = wordTemplate.content;
+      console.log('form.watch("contractContent")', form.watch('contractContent'));
       const variables = wordTemplate.content.match(/{{.*?}}/g);
       let variableValue = '';
 
@@ -172,7 +174,7 @@ const ContractModalGenerate = ({ open, onClose, form }: ContractModalGeneratePro
               )?.description || '';
           }
           if (variable === '{{penalidad}}') {
-            variableValue = form.getValues('penaltyRate').replace('.', ',') || '';
+            variableValue = form.watch('penaltyRate').replace('.', ',') || '';
           }
           if (variable === '{{penalidad_entrega_texto}}') {
             variableValue = `${numberToText(+form.getValues('rescissionRate'))}` || '';
@@ -213,13 +215,12 @@ const ContractModalGenerate = ({ open, onClose, form }: ContractModalGeneratePro
               '';
           }
 
-          wordTemplate.content = wordTemplate.content.replace(variable, variableValue);
+          content = content.replace(variable, variableValue);
           variableValue = '';
         });
       }
 
-      const finalContent = wordTemplate.content;
-      form.setValue('contractContent', finalContent, { shouldDirty: true });
+      form.setValue('contractContent', content, { shouldDirty: true });
       setIsContentReady(true);
     }
   }, [isLoading, wordTemplate, tenant, owner, guarantorData, property, guarantorsList, form]);

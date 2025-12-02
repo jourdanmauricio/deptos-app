@@ -87,7 +87,7 @@ const PartiesPage = () => {
       matchesSearch =
         party.name.toLowerCase().includes(searchTerm) ||
         party.lastName.toLowerCase().includes(searchTerm) ||
-        party.email.toLowerCase().includes(searchTerm) ||
+        party.email?.toLowerCase().includes(searchTerm) ||
         party.phone.toLowerCase().includes(searchTerm) ||
         party.dni.toLowerCase().includes(searchTerm) ||
         party.description.toLowerCase().includes(searchTerm);

@@ -23,7 +23,7 @@ export const getColumns = ({
     header: 'PROPIEDAD',
     size: 0,
     minSize: 300,
-    maxSize: 350,
+    maxSize: 450,
     cell: ({ row }) => {
       const rental = row.original;
       return <TruncatedCell value={rental.property?.name || ''} linesMax={2} />;
@@ -32,7 +32,9 @@ export const getColumns = ({
   {
     id: 'tenant',
     header: 'INQUILINO',
-    size: 200,
+    size: 0,
+    minSize: 300,
+    maxSize: 450,
     cell: ({ row }) => {
       const rental = row.original;
       return (
@@ -44,10 +46,18 @@ export const getColumns = ({
     },
   },
   {
+    accessorKey: 'phone',
+    header: 'TELÉFONO',
+    size: 150,
+    cell: ({ row }) => {
+      const rental = row.original;
+      return <TruncatedCell value={rental.tenant.phone || ''} linesMax={2} />;
+    },
+  },
+  {
     accessorKey: 'status',
     header: 'ESTADO',
-    size: 0,
-    minSize: 200,
+    size: 150,
     cell: ({ row }) => {
       const rental = row.original;
       return <TruncatedCell value={rentalStatusConstants[rental.status]} linesMax={2} />;
@@ -56,8 +66,7 @@ export const getColumns = ({
   {
     accessorKey: 'endDate',
     header: 'FECHA FIN',
-    size: 0,
-    minSize: 200,
+    size: 150,
     cell: ({ row }) =>
       row.original.endDate.toLocaleDateString('es-ES', {
         day: '2-digit',
@@ -65,7 +74,6 @@ export const getColumns = ({
         year: 'numeric',
       }),
   },
-
   {
     id: 'actions',
     header: 'ACCIONES',

@@ -57,6 +57,7 @@ const EditorTiptap = ({ label, className, form, name }: EditorTiptapProps) => {
     editorProps: {
       attributes: {
         class: 'prose prose-sm max-w-none focus:outline-none min-h-[400px] p-4',
+        style: 'font-family: Arial, sans-serif;',
       },
     },
   });

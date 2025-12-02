@@ -48,7 +48,7 @@ const RentalsPage = () => {
     }
 
     const content = rental.contractContent || '';
-    const fileName = `contrato_${rental.tenantId}_${Date.now()}.docx`;
+    const fileName = `contrato_${rental.tenant.lastName}_${rental.tenant.name}.docx`;
 
     try {
       const response = await fetch('/api/generate-docx', {
